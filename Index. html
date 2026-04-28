@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang=en> 
+  <head> 
+     <meta charset=UTF-8>
+     <meta name=viewport content=width=device-width, initial-scale=1.0>
+    <title>1% Playground • Private Members Club</title> 
+    </head> 
+  <style>
+    body { margin: 0; background: #0a0a0a; color: white; font-family: Arial, sans-serif; }
+  nav { background: black; padding: 20px; text-align: center; }
+    nav a { color: #d4af37; margin: 0 20px; text-decoration: none; }
+    </style>
+  <body>
+    <nav>
+      <a href=#company>Company</a> 
+      <a href=#staff>Staff Bots</a>
+       <a href=#host>Host Bots</a> 
+      <a href=#playground>1% Playground</a>
+      <a href=#download>Download App</a>
+    </nav>
+    <div class=hero>
+      <h1>1% Playground</h1>
+      <p>A private members club that actually pays you
+         </div> 
+    </body> 
+  </html>
+
+  
+    
+        
+      
+    
+  
+  
+      
+    
