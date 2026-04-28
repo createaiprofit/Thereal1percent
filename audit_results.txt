@@ -1,0 +1,91 @@
+============================================================
+BOOK CLUB — EXISTING BOOKS
+============================================================
+  The Prince — Niccolò Machiavelli
+  48 Laws of Power — Robert Greene
+  Rich Dad Poor Dad — Robert Kiyosaki
+  Think and Grow Rich — Napoleon Hill
+  The Art of War — Sun Tzu
+  The Millionaire Fastlane — MJ DeMarco
+  Mastery — Robert Greene
+  Zero to One — Peter Thiel
+  The Intelligent Investor — Benjamin Graham
+  Influence — Robert Cialdini
+  The Prince — Niccolò Machiavelli
+  48 Laws of Power — Robert Greene
+  Rich Dad Poor Dad — Robert Kiyosaki
+  Think and Grow Rich — Napoleon Hill
+  The Art of War — Sun Tzu
+  The Millionaire Fastlane — MJ DeMarco
+  Mastery — Robert Greene
+  Zero to One — Peter Thiel
+  The Intelligent Investor — Benjamin Graham
+  Influence — Robert Cialdini
+
+============================================================
+STORE / MARKETPLACE — EXISTING PRODUCTS
+============================================================
+  CAP | $6,900 | commission: 8%
+  Diamond Solitaire Ring | $12,500 | commission: 8%
+  Vintage Alhambra Necklace | $8,200 | commission: 8%
+  Pearl Drop Earrings | $3,400 | commission: 8%
+  Slim-Fit Tuxedo | $4,800 | commission: 10%
+  Vanquish II Suit | $7,200 | commission: 10%
+  Monogram Silk Scarf | $580 | commission: 10%
+  Silk Twill Tie | $240 | commission: 10%
+  Horsebit Loafers | $1,050 | commission: 10%
+  O'Connor Blazer | $3,990 | commission: 10%
+  Cosmograph Daytona | $29,500 | commission: 5%
+  Royal Oak | $45,000 | commission: 5%
+  Calatrava | $32,000 | commission: 5%
+  Slender Wallet | $460 | commission: 10%
+  Reversible H Belt | $760 | commission: 10%
+  Intrecciato Briefcase | $3,200 | commission: 10%
+  Aventus | $550 | commission: 12%
+  Oud Wood | $295 | commission: 12%
+  Bleu de Chanel EDP | $185 | commission: 12%
+  Daytona Cosmograph | $28,500+ | commission: 5%
+  Nautilus 5711 | $120,000+ | commission: 5%
+  Lady Dior Bag | $5,500 | commission: 8%
+  Classic Flap Bag | $10,200 | commission: 8%
+  Birkin 30 | $12,000+ | commission: 8%
+  So Kate 120mm Heels | $795 | commission: 10%
+  Signature Lace Set | $650 | commission: 12%
+  Love Bracelet | $7,350 | commission: 8%
+  Medusa Head Suit | $4,200 | commission: 8%
+  Re-Nylon Bomber | $2,800 | commission: 8%
+  Emporio Tuxedo | $3,500 | commission: 8%
+
+============================================================
+JUKEBOX — EXISTING CODE
+============================================================
+]=X.useState(""),[l,c]=X.useState(""),[f,p]=X.useState(""),[x,b]=X.useState(!1);X.useEffect(()=>{n?.jukeboxSongs&&r(n.jukeboxSongs)},[n]);const y=()=>{!a.trim()||!l.trim()||i.length>=10||(r(A=>[...A,{title:a.trim(),uri:l.trim(),artist:f.trim()||void 0,duration:0}]),s(""),c(""),p(""))},v=A=>r(_=>_.filter((C,P)=>P!==A)),T=async()=>{await e.mutateAsync({songs:i}),t.social.getJukebox.invalidate(),b(!0),setTimeout(()=>b(!1),2e3)};return u.jsxs("div",{"data-loc":"client/src/components/Jukebox.tsx:134",style:{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:"12px",padding:"1.5rem"},children:[u.jsxs("div",{"data-loc":"client/src/components/Jukebox.tsx:135",style:{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"1.25rem"},children:[u.jsx(Z7,{"data-loc":"client/src/components/Jukebox.tsx:136",size:18,color:"#facc15"}),u.jsxs("span",{"data-loc":"client/src/components/Jukebox.tsx:137",style:{fontFamily:"'Rajdhani', sans-serif",fontSize:"0.85rem",letterSpacing:"0.2em",textTransform:"uppercase",color:"#facc15"},children:["Jukebox — ",i.length,
+
+============================================================
+SOCIAL BUTTONS — LIKE / COMMENT / SHARE / POST
+============================================================
+[likeCount] — 2 hits
+  color:"rgba(255,255,255,0.25)"},children:["♥ ",(y.likeCount??0).toLocaleString()]}),u.jsxs("span",{"data-loc":"client/src/pages/Home.tsx:1015",style:{fontFamily:"'Rajdhani', sans-serif",fontSize:"0.75rem",letterSpacing:"0.15em",color:"rgba(255,255,25
+
+[commentCount] — 2 hits
+  color:"rgba(255,255,255,0.25)"},children:["✦ ",(y.commentCount??0).toLocaleString()," comments"]})]})]},y.id)})}),f&&u.jsx("div",{"data-loc":"client/src/pages/Home.tsx:1027",style:{textAlign:"center",marginTop:"2rem"},children:u.jsx("button",{"data-l
+
+
+============================================================
+LOGIN BUTTON / FLOW
+============================================================
+  Login page buttons: []
+
+============================================================
+BOT SCHEDULER / VIDEO QUEUE
+============================================================
+{},kw={exports:{}},Rw={};/**
+ * @license React
+ * scheduler.production.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */var rE;function QF(){return rE||(rE=1,(function(n){function e($,Q){var re=$.length;$.push(Q);e:for(;0<re;){var xe=re-1>>>1,Ee=$[xe];if(0<r(Ee,Q))$[xe]=Q,$[re]=Ee,re=xe;else break e}}function t($){return $.length===0?null:$[0]}function i($){if($.length===0)return null;var Q=$[0],re=$.pop();if(re!==Q){$[0]=re;e:for(var xe=0,Ee=$.length,ae=Ee>>>1;xe<ae;){var q=2*(xe+1)-1,K=$[q],ne=q+1,pe=$[ne];if(0>r(K,re))ne<Ee&&0>r(pe,K)?($[xe]=pe,$[ne]=re,xe=ne):($[xe]=K,$[q]=re,xe=q);else if(ne<Ee&&0>r(pe,re))$[xe]=pe,$[ne]=re,xe=ne;else break e}}return Q}function r($,Q){var re=$.sortIndex-Q.sort
+arginBottom:"1rem",textAlign:"center"},children:["Video Queue · ",P," Clips Staged"]}),u.jsx("div",{"data-loc":"client/src/pages/Home.tsx:1242",style:{display:"flex",gap:"0",marginBottom:"0",borderBottom:"1px solid rgba(255,255,255,0.08)",overflowX:"auto"},children:Object.keys(Vb).map(k=>u.jsxs("button",{"data-loc":"client/src/pages/Home.tsx:1244",onClick:()=>i(k),style:{background:t===k?"rgba(255,255,255,0.05)":"transparent",border:"none",borderBottom:t===k?`2px solid ${Vb[k].color}`:"2px solid transparent",color:t===k?"#ffffff":"rgba(255,255,255,0.35)",padding:"0.65rem 1.25rem",cursor:"pointer",fontFamily:"'Rajdhani', sans-serif",fontSize:"
