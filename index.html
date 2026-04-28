@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>1% Playground — Community Feed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0a0a0a;color:#fff;font-family:'Rajdhani',sans-serif;min-height:100vh}
+    .header{background:#111;border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .logo{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.2)}
+    .header-title{font-size:0.75rem;letter-spacing:0.3em;color:rgba(255,255,255,0.5);text-transform:uppercase}
+    .member-badge{display:flex;align-items:center;gap:8px}
+    .tier{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:#ffd700;font-size:0.65rem;letter-spacing:0.2em;padding:2px 8px;border-radius:2px}
+    .nav-tabs{display:flex;gap:4px;padding:10px 12px;overflow-x:auto;background:#0d0d0d;border-bottom:1px solid rgba(255,255,255,0.06);scrollbar-width:none}
+    .nav-tabs::-webkit-scrollbar{display:none}
+    .tab{white-space:nowrap;padding:6px 14px;font-size:0.7rem;letter-spacing:0.15em;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;border-radius:2px;font-family:'Rajdhani',sans-serif}
+    .tab.active{border-color:rgba(255,215,0,0.4);color:#ffd700;background:rgba(255,215,0,0.06)}
+    .feed{max-width:520px;margin:0 auto;padding:12px 0 80px}
+    .post{border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 14px}
+    .post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.1)}
+    .avatar-placeholder{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;border:1px solid rgba(255,255,255,0.1)}
+    .post-meta{flex:1}
+    .handle{font-size:0.85rem;font-weight:600;color:#fff;letter-spacing:0.05em}
+    .time{font-size:0.7rem;color:rgba(255,255,255,0.35);letter-spacing:0.1em}
+    .enterprise-badge{font-size:0.6rem;letter-spacing:0.15em;color:#e5e4e2;background:rgba(229,228,226,0.08);border:1px solid rgba(229,228,226,0.2);padding:1px 6px;border-radius:1px;margin-left:6px}
+    .post-content{font-size:0.9rem;line-height:1.6;color:rgba(255,255,255,0.85);margin-bottom:12px}
+    .post-actions{display:flex;gap:16px;align-items:center}
+    .action-btn{background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;font-family:'Rajdhani',sans-serif;display:flex;align-items:center;gap:4px;padding:0}
+    .action-btn:hover{color:#ffd700}
+    .comments{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05)}
+    .comment{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start}
+    .comment-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0}
+    .comment-body{flex:1}
+    .comment-handle{font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:2px}
+    .comment-text{font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.5}
+    .win-post{border-left:2px solid #ffd700}
+    .tip-post{border-left:2px solid #4ade80}
+    .support-post{border-left:2px solid #818cf8}
+    .win-tag{font-size:0.65rem;letter-spacing:0.2em;color:#ffd700;margin-bottom:6px;text-transform:uppercase}
+    .tip-tag{font-size:0.65rem;letter-spacing:0.2em;color:#4ade80;margin-bottom:6px;text-transform:uppercase}
+    .support-tag{font-size:0.65rem;letter-spacing:0.2em;color:#818cf8;margin-bottom:6px;text-transform:uppercase}
+    .live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;margin-right:4px;animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .activity-bar{background:#111;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 14px;font-size:0.7rem;color:rgba(255,255,255,0.35);letter-spacing:0.1em;display:flex;align-items:center;gap:6px}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-around;padding:10px 0}
+    .bottom-btn{background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;font-family:'Rajdhani',sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px}
+    .bottom-btn.active{color:#ffd700}
+    .bottom-icon{font-size:1.1rem}
+    .load-more{display:block;width:100%;padding:14px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);font-family:'Rajdhani',sans-serif;font-size:0.75rem;letter-spacing:0.2em;cursor:pointer;text-align:center;margin:16px 14px;width:calc(100% - 28px)}
+    .load-more:hover{border-color:rgba(255,215,0,0.3);color:#ffd700}
+    .online-count{font-size:0.7rem;color:rgba(255,255,255,0.3);letter-spacing:0.1em;padding:8px 14px;text-align:center}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:10px">
+    <img class="logo" src="https://d2xsxph8kpxj0f.cloudfront.net/310519663435070666/UKZTwoEXuGkRzDU2B5gMpQ/cap_logo_master_9abf3722.png" alt="CAP"/>
+    <span class="header-title">CAP Feed</span>
+  </div>
+  <div class="member-badge">
+    <span style="font-size:0.8rem;color:rgba(255,255,255,0.6)">M</span>
+    <span class="tier">ENTERPRISE ◆</span>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <button class="tab active">🏠 Feed</button>
+  <button class="tab">📡 Live ●</button>
+  <button class="tab">💎 Golden Vault</button>
+  <button class="tab">🎩 Concierge</button>
+  <button class="tab">🏛 Real Estate</button>
+  <button class="tab">🌟 Dating 25 & Under</button>
+  <button class="tab">🥂 Dating 55+</button>
+  <button class="tab">✉️ DM / Chat</button>
+</div>
+
+<div class="activity-bar">
+  <span class="live-dot"></span>
+  <span id="online-count">847 members active now</span>
+  &nbsp;·&nbsp; 1,000 enterprise members
+</div>
+
+<div class="feed" id="feed-container">
+
+  <!-- POST 1 - WIN -->
+  <div class="post win-post">
+    <div class="win-tag">🏆 WIN</div>
+    <div class="post-header">
+      <div class="avatar-placeholder" style="background:rgba(255,215,0,0.15);color:#ffd700">SL</div>
+      <div class="post-meta">
+        <div class="handle">@sofia.lagos <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+        <div class="time">3m ago</div>
+      </div>
+    </div>
+    <div class="post-content">Just closed my first Airbnb assignment deal in Phoenix — $4,200 profit in 11 days. No mortgage, no renovation, no headache. The system works if you work it. 🔑 #CreateAIProfit #AirbnbAssignment</div>
+    <div class="post-actions">
+      <button class="action-btn">♡ 2.1K</button>
+      <button class="action-btn">💬 47</button>
+      <button class="action-btn">↗ Share</button>
+    </div>
+    <div class="comments">
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(129,140,248,0.2);color:#818cf8">MR</div>
+        <div class="comment-body"><div class="comment-handle">@marco.rome</div><div class="comment-text">That's the move. Phoenix market is 🔥 right now. What was your avg nightly rate?</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(74,222,128,0.15);color:#4ade80">JK</div>
+        <div class="comment-body"><div class="comment-handle">@jade.kingston</div><div class="comment-text">LETS GOOO Sofia!! You told me about this 3 weeks ago and I was skeptical. Sending you a DM NOW 🙌</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">DP</div>
+        <div class="comment-body"><div class="comment-handle">@dev.phoenix</div><div class="comment-text">Congrats! I'm in week 2 of my first assignment. This gives me so much motivation 🙏</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 2 - TIP -->
+  <div class="post tip-post">
+    <div class="tip-tag">💡 REAL ESTATE TIP</div>
+    <div class="post-header">
+      <div class="avatar-placeholder" style="background:rgba(74,222,128,0.1);color:#4ade80">KT</div>
+      <div class="post-meta">
+        <div class="handle">@kai.tokyo <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+        <div class="time">7m ago</div>
+      </div>
+    </div>
+    <div class="post-content">Quick tip for anyone starting their first Airbnb assignment: always check the host's review response rate before you take the deal. Hosts who respond within 1 hour have 40% fewer cancellations. That's the difference between $3K and $0. 📊 #RealEstateTip #1PercentPlayground</div>
+    <div class="post-actions">
+      <button class="action-btn">♡ 1.8K</button>
+      <button class="action-btn">💬 63</button>
+      <button class="action-btn">↗ Share</button>
+    </div>
+    <div class="comments">
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">SL</div>
+        <div class="comment-body"><div class="comment-handle">@sofia.lagos</div><div class="comment-text">This is GOLD. Wish I had this before my first deal. Saving this 📌</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,100,100,0.15);color:#f87171">NB</div>
+        <div class="comment-body"><div class="comment-handle">@nia.brooklyn</div><div class="comment-text">Kai always dropping the real intel. No fluff, just data. This is why I love this community 🙏</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(129,140,248,0.2);color:#818cf8">LM</div>
+        <div class="comment-body"><div class="comment-handle">@luca.milan</div><div class="comment-text">Adding — also check their occupancy rate on AirDNA before committing. Kai's right, the data doesn't lie.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 3 - SUPPORT -->
+  <div class="post support-post">
+    <div class="support-tag">💜 COMMUNITY</div>
+    <div class="post-header">
+      <div class="avatar-placeholder" style="background:rgba(129,140,248,0.15);color:#818cf8">NB</div>
+      <div class="post-meta">
+        <div class="handle">@nia.brooklyn <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+        <div class="time">12m ago</div>
+      </div>
+    </div>
+    <div class="post-content">Real talk — I almost quit last month. Two deals fell through, my confidence was gone. Then @jade.kingston and @marco.rome spent 2 hours on a call with me walking me through what went wrong. That's what this community is. We don't let each other fail. 💜 #1PercentPlayground</div>
+    <div class="post-actions">
+      <button class="action-btn">♡ 4.4K</button>
+      <button class="action-btn">💬 89</button>
+      <button class="action-btn">↗ Share</button>
+    </div>
+    <div class="comments">
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(74,222,128,0.15);color:#4ade80">JK</div>
+        <div class="comment-body"><div class="comment-handle">@jade.kingston</div><div class="comment-text">That call meant everything to me too Nia. You're one of the realest in here. We ride together 🙏</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(129,140,248,0.2);color:#818cf8">MR</div>
+        <div class="comment-body"><div class="comment-handle">@marco.rome</div><div class="comment-text">This is why I show up every day. Not for the money — for moments like this. Keep going Nia 💪</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">KT</div>
+        <div class="comment-body"><div class="comment-handle">@kai.tokyo</div><div class="comment-text">The 1% isn't just about money. It's about who you become in the process. Proud of you 🔑</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 4 - WIN -->
+  <div class="post win-post">
+    <div class="win-tag">🏆 WIN</div>
+    <div class="post-header">
+      <div class="avatar-placeholder" style="background:rgba(255,100,100,0.15);color:#f87171">DP</div>
+      <div class="post-meta">
+        <div class="handle">@dev.phoenix <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+        <div class="time">18m ago</div>
+      </div>
+    </div>
+    <div class="post-content">Week 3 update: 2 assignments closed, $6,800 total. My goal was $5K by end of month and I hit it early. Shoutout to @kai.tokyo for the tip about occupancy rates — it literally saved my second deal. This community is different. 🙌 #CAP #AirbnbWin</div>
+    <div class="post-actions">
+      <button class="action-btn">♡ 3.2K</button>
+      <button class="action-btn">💬 71</button>
+      <button class="action-btn">↗ Share</button>
+    </div>
+    <div class="comments">
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(74,222,128,0.15);color:#4ade80">KT</div>
+        <div class="comment-body"><div class="comment-handle">@kai.tokyo</div><div class="comment-text">That's what I'm talking about! You took the info and RAN with it. That's 1% energy 🔥</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">SL</div>
+        <div class="comment-body"><div class="comment-handle">@sofia.lagos</div><div class="comment-text">We're winning together!! $6,800 in week 3 is insane. Drop your process in the Real Estate tab 🙏</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(129,140,248,0.2);color:#818cf8">LM</div>
+        <div class="comment-body"><div class="comment-handle">@luca.milan</div><div class="comment-text">Bro I needed to see this today. I'm on week 1 and this is the motivation. Let's get it 💪</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 5 - TIP -->
+  <div class="post tip-post">
+    <div class="tip-tag">💡 CRYPTO TIP</div>
+    <div class="post-header">
+      <div class="avatar-placeholder" style="background:rgba(255,165,0,0.15);color:#fb923c">LM</div>
+      <div class="post-meta">
+        <div class="handle">@luca.milan <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+        <div class="time">24m ago</div>
+      </div>
+    </div>
+    <div class="post-content">For the crypto side of the portfolio — I keep 60% in stable yield strategies, 30% in BTC/ETH, 10% in high-risk plays. The 60% funds my Airbnb assignments. The 10% is where the real flips happen. Never risk what you can't afford to lose. Protect the base first. 📈 #CryptoFlip #1Percent</div>
+    <div class="post-actions">
+      <button class="action-btn">♡ 2.7K</button>
+      <button class="action-btn">💬 54</button>
+      <button class="action-btn">↗ Share</button>
+    </div>
+    <div class="comments">
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">KT</div>
+        <div class="comment-body"><div class="comment-handle">@kai.tokyo</div><div class="comment-text">The 60/30/10 split is clean. I run 70/20/10 but same philosophy — protect the base. 🤝</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(129,140,248,0.2);color:#818cf8">NB</div>
+        <div class="comment-body"><div class="comment-handle">@nia.brooklyn</div><div class="comment-text">This is the framework I've been looking for. Can you do a deeper breakdown in the Vault tab?</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 6 - COMMUNITY -->
+  <div class="post support-post">
+    <div class="support-tag">💜 COMMUNITY</div>
+    <div class="post-header">
+      <div class="avatar-placeholder" style="background:rgba(74,222,128,0.15);color:#4ade80">JK</div>
+      <div class="post-meta">
+        <div class="handle">@jade.kingston <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+        <div class="time">31m ago</div>
+      </div>
+    </div>
+    <div class="post-content">Weekly accountability check-in 🙋‍♀️ Drop your goal for this week below. We're holding each other accountable. Mine: close 1 assignment and hit $3K. Who's with me? Tag someone who needs to see this. #1PercentPlayground #Accountability</div>
+    <div class="post-actions">
+      <button class="action-btn">♡ 5.1K</button>
+      <button class="action-btn">💬 212</button>
+      <button class="action-btn">↗ Share</button>
+    </div>
+    <div class="comments">
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">SL</div>
+        <div class="comment-body"><div class="comment-handle">@sofia.lagos</div><div class="comment-text">I'm in! Goal: close deal #3 and hit $10K total for the month 🔥 Tagging @dev.phoenix</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,100,100,0.15);color:#f87171">DP</div>
+        <div class="comment-body"><div class="comment-handle">@dev.phoenix</div><div class="comment-text">Let's GO @sofia.lagos! My goal: $5K week 4. We're both hitting it 💪</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(129,140,248,0.2);color:#818cf8">MR</div>
+        <div class="comment-body"><div class="comment-handle">@marco.rome</div><div class="comment-text">Goal: lock in 2 new host partnerships in Rome. International assignments are next level. 🌍</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,165,0,0.15);color:#fb923c">LM</div>
+        <div class="comment-body"><div class="comment-handle">@luca.milan</div><div class="comment-text">Goal: finish my first deal and stop overthinking it 😅 This community won't let me fail</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST 7 - WIN -->
+  <div class="post win-post">
+    <div class="win-tag">🏆 MILESTONE</div>
+    <div class="post-header">
+      <div class="avatar-placeholder" style="background:rgba(129,140,248,0.15);color:#818cf8">MR</div>
+      <div class="post-meta">
+        <div class="handle">@marco.rome <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+        <div class="time">38m ago</div>
+      </div>
+    </div>
+    <div class="post-content">6 months in the 1% Playground. $47,000 total from Airbnb assignments. Started with zero real estate experience. The only thing that changed was my circle. You become who you're around. Choose wisely. 🏛 #CreateAIProfit #RealEstate #6MonthMilestone</div>
+    <div class="post-actions">
+      <button class="action-btn">♡ 11.3K</button>
+      <button class="action-btn">💬 334</button>
+      <button class="action-btn">↗ Share</button>
+    </div>
+    <div class="comments">
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(74,222,128,0.15);color:#4ade80">JK</div>
+        <div class="comment-body"><div class="comment-handle">@jade.kingston</div><div class="comment-text">MARCO!! $47K?! You were the first person who welcomed me in here. So proud of you 🥹🙌</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">KT</div>
+        <div class="comment-body"><div class="comment-handle">@kai.tokyo</div><div class="comment-text">This is the post I'm showing everyone who says this doesn't work. Real results, real person. 🔑</div></div>
+      </div>
+      <div class="comment">
+        <div class="comment-avatar" style="background:rgba(255,215,0,0.1);color:#ffd700">SL</div>
+        <div class="comment-body"><div class="comment-handle">@sofia.lagos</div><div class="comment-text">You're literally the reason I joined. Watching your journey gave me the courage. Thank you Marco 💜</div></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="load-more" onclick="loadMore()">LOAD MORE — 993 MORE MEMBERS POSTING</button>
+
+</div>
+
+<div class="bottom-nav">
+  <button class="bottom-btn active"><span class="bottom-icon">🏠</span>Feed</button>
+  <button class="bottom-btn"><span class="bottom-icon">🔍</span>Explore</button>
+  <button class="bottom-btn"><span class="bottom-icon">➕</span>Post</button>
+  <button class="bottom-btn"><span class="bottom-icon">💬</span>DMs</button>
+  <button class="bottom-btn"><span class="bottom-icon">👤</span>Profile</button>
+</div>
+
+<script>
+  // Simulate live activity counter
+  let count = 847;
+  setInterval(() => {
+    const delta = Math.floor(Math.random() * 5) - 2;
+    count = Math.max(800, Math.min(950, count + delta));
+    document.getElementById('online-count').textContent = count + ' members active now';
+  }, 4000);
+
+  // Load more posts
+  const morePosts = [
+    {handle:'@priya.mumbai', color:'rgba(236,72,153,0.15)', textColor:'#f472b6', tag:'💡 REAL ESTATE TIP', tagClass:'tip-tag', content:'Assignment tip: always run comps on 3 comparable listings before agreeing to a price. I use AirDNA + Mashvisor together. 20 minutes of research = thousands more in profit. 📊 #RealEstateTip', likes:'1.4K', comments:'38'},
+    {handle:'@elena.bucharest', color:'rgba(251,191,36,0.1)', textColor:'#fbbf24', tag:'🏆 WIN', tagClass:'win-tag', content:'First deal done! $2,800 profit on a 14-day assignment in Bucharest. Small win but it\'s MY win. Starting the second one tomorrow. This community showed me it was possible 🙏 #FirstWin', likes:'3.8K', comments:'91'},
+    {handle:'@james.atlanta', color:'rgba(74,222,128,0.1)', textColor:'#4ade80', tag:'💜 COMMUNITY', tagClass:'support-tag', content:'Shoutout to everyone who replied to my post last week when I was struggling. You all showed up. That\'s rare. That\'s 1%. 💜 Update: back on track, deal closing Friday. #1PercentPlayground', likes:'6.2K', comments:'147'},
+    {handle:'@yuki.osaka', color:'rgba(129,140,248,0.15)', textColor:'#818cf8', tag:'💡 CRYPTO TIP', tagClass:'tip-tag', content:'For anyone watching the market — BTC consolidating between $58K-$62K is historically a strong accumulation zone. Not advice. Just pattern recognition from 4 years of watching. Do your own research. 📈 #CryptoFlip', likes:'2.1K', comments:'67'},
+  ];
+
+  function loadMore() {
+    const feed = document.getElementById('feed-container');
+    const btn = document.querySelector('.load-more');
+    morePosts.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'post ' + (p.tagClass === 'win-tag' ? 'win-post' : p.tagClass === 'tip-tag' ? 'tip-post' : 'support-post');
+      div.innerHTML = `
+        <div class="${p.tagClass}">${p.tag}</div>
+        <div class="post-header">
+          <div class="avatar-placeholder" style="background:${p.color};color:${p.textColor}">${p.handle.replace('@','').split('.').map(w=>w[0].toUpperCase()).join('')}</div>
+          <div class="post-meta">
+            <div class="handle">${p.handle} <span class="enterprise-badge">◆ ENTERPRISE</span></div>
+            <div class="time">just now</div>
+          </div>
+        </div>
+        <div class="post-content">${p.content}</div>
+        <div class="post-actions">
+          <button class="action-btn">♡ ${p.likes}</button>
+          <button class="action-btn">💬 ${p.comments}</button>
+          <button class="action-btn">↗ Share</button>
+        </div>`;
+      feed.insertBefore(div, btn);
+    });
+    btn.textContent = 'LOAD MORE — 989 MORE MEMBERS POSTING';
+  }
+</script>
+</body>
+</html>
