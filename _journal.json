@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1774961810356,
+      "tag": "0000_nervous_rachel_grey",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1775145823026,
+      "tag": "0001_glorious_the_renegades",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1775203874930,
+      "tag": "0002_colossal_tyger_tiger",
+      "breakpoints": true
+    }
+  ]
+}
