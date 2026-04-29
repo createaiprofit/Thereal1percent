@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beta Token Flow — Create AI Profit</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400&family=Rajdhani:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Lato', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ─── DEMO CONTROL PANEL ─── */
+  .demo-panel {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(20,20,30,0.97);
+    border-bottom: 1px solid rgba(180,140,255,0.2);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    flex-wrap: wrap;
+  }
+  .demo-panel span {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(180,140,255,0.7);
+    margin-right: 6px;
+  }
+  .demo-btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .demo-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .demo-btn.active { background: rgba(180,140,255,0.15); border-color: rgba(180,140,255,0.5); color: rgba(180,140,255,1); }
+  .demo-btn.error-btn { border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.7); }
+  .demo-btn.error-btn:hover { background: rgba(248,113,113,0.1); color: #f87171; }
+
+  /* ─── MAIN STAGE ─── */
+  .stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Ambient glow */
+  .ambient {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(180,140,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ─── LOGO ─── */
+  .logo {
+    height: 48px;
+    width: 48px;
+    object-fit: contain;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 12px rgba(200,180,255,0.3));
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; text-align: center; max-width: 480px; width: 100%; }
+  .screen.active { display: block; animation: fadeIn 0.6s ease forwards; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* LOADING */
+  .loading-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  .spinner {
+    width: 24px; height: 24px;
+    border: 1px solid rgba(180,140,255,0.2);
+    border-top-color: rgba(180,140,255,0.7);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 1rem auto 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* INVALID */
+  .access-denied {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    color: #f87171;
+    margin-bottom: 1rem;
+  }
+  .error-msg {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  .return-link {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 2px;
+  }
+
+  /* VALID / SPEAKING / READY */
+  .aria-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 2rem;
+  }
+  .aria-img {
+    height: 280px;
+    width: auto;
+    object-fit: contain;
+    transition: filter 0.5s ease;
+  }
+  .aria-img.speaking {
+    filter: brightness(1.15) drop-shadow(0 0 30px rgba(180,140,255,0.5));
+  }
+  .aria-ring {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid rgba(180,140,255,0.4);
+    animation: pulse 1.2s ease-in-out infinite;
+    display: none;
+  }
+  .aria-ring.visible { display: block; }
+
+  .aria-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  .beta-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 2.5rem;
+  }
+  .get-in-btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    padding: 1rem 3rem;
+    font-weight: 700;
+    transition: opacity 0.2s;
+  }
+  .get-in-btn:hover { opacity: 0.85; }
+  .waiting-dots {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.06); opacity: 0.8; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.6; }
+  }
+
+  /* ─── FLOW MAP ─── */
+  .flow-map {
+    position: fixed;
+    right: 20px;
+    top: 60px;
+    width: 220px;
+    background: rgba(10,10,20,0.95);
+    border: 1px solid rgba(180,140,255,0.15);
+    padding: 16px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    z-index: 999;
+  }
+  .flow-map-title {
+    color: rgba(180,140,255,0.6);
+    margin-bottom: 12px;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: rgba(255,255,255,0.2);
+    transition: color 0.3s;
+  }
+  .flow-step.current { color: rgba(180,140,255,0.9); }
+  .flow-step.done { color: rgba(255,255,255,0.4); }
+  .flow-step.error-step { color: rgba(248,113,113,0.7); }
+  .step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ─── TOKEN DISPLAY ─── */
+  .token-display {
+    position: fixed;
+    left: 20px;
+    top: 60px;
+    width: 200px;
+    background: rgba(10,10,20,0.95);
+    border: 1px solid rgba(180,140,255,0.15);
+    padding: 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    z-index: 999;
+  }
+  .token-label { color: rgba(180,140,255,0.6); text-transform: uppercase; letter-spacing: 0.3em; margin-bottom: 8px; }
+  .token-value { color: rgba(255,255,255,0.7); font-size: 0.65rem; word-break: break-all; margin-bottom: 6px; }
+  .token-status { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; }
+  .token-status.valid { color: rgba(100,255,150,0.8); }
+  .token-status.invalid { color: rgba(248,113,113,0.8); }
+  .token-status.checking { color: rgba(255,200,80,0.8); }
+
+  /* ─── SUBSCRIPTION TIERS ─── */
+  #screen-tiers {
+    max-width: 700px;
+  }
+  .tiers-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: rgba(255,255,255,0.9);
+  }
+  .tiers-sub {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 2rem;
+  }
+  .tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 2rem;
+  }
+  .tier-card {
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px 16px;
+    text-align: left;
+    position: relative;
+  }
+  .tier-card.popular { border-color: rgba(180,140,255,0.4); }
+  .tier-badge {
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(180,140,255,0.9);
+    color: #000;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    font-weight: 700;
+  }
+  .tier-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 6px;
+  }
+  .tier-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .tier-period {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 12px;
+  }
+  .tier-features {
+    list-style: none;
+    margin-bottom: 16px;
+  }
+  .tier-features li {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.5);
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .tier-features li::before { content: "· "; color: rgba(180,140,255,0.5); }
+  .tier-cta {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    padding: 8px 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+  }
+  .tier-card.popular .tier-cta {
+    background: rgba(180,140,255,0.15);
+    border-color: rgba(180,140,255,0.5);
+    color: rgba(180,140,255,1);
+  }
+  .tier-cta:hover { background: rgba(255,255,255,0.08); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- DEMO CONTROL PANEL -->
+<div class="demo-panel">
+  <span>Beta Token Flow ·</span>
+  <button class="demo-btn active" onclick="showScreen('loading')">1. Loading</button>
+  <button class="demo-btn" onclick="showScreen('speaking')">2. Aria Speaking</button>
+  <button class="demo-btn" onclick="showScreen('ready')">3. Ready</button>
+  <button class="demo-btn" onclick="showScreen('tiers')">4. Subscribe</button>
+  <span style="margin-left:10px;">Error States ·</span>
+  <button class="demo-btn error-btn" onclick="showError('not_found')">Not Found</button>
+  <button class="demo-btn error-btn" onclick="showError('inactive')">Inactive</button>
+  <button class="demo-btn error-btn" onclick="showError('already_used')">Already Used</button>
+  <button class="demo-btn error-btn" onclick="showError('expired')">Expired</button>
+</div>
+
+<!-- TOKEN INFO PANEL -->
+<div class="token-display">
+  <div class="token-label">Token</div>
+  <div class="token-value" id="token-val">CAP-BETA-2026-XK9</div>
+  <div class="token-status checking" id="token-status">● Checking...</div>
+  <div style="margin-top:10px; color:rgba(255,255,255,0.2); font-size:0.5rem; letter-spacing:0.1em;">
+    Label: VIP Invite<br>
+    Uses: 1 of 1<br>
+    Expires: 24h
+  </div>
+</div>
+
+<!-- FLOW MAP -->
+<div class="flow-map">
+  <div class="flow-map-title">Token Flow</div>
+  <div class="flow-step current" id="step-validate">
+    <div class="step-dot"></div>
+    <span>Validate Token</span>
+  </div>
+  <div class="flow-step" id="step-aria">
+    <div class="step-dot"></div>
+    <span>Aria Speaks</span>
+  </div>
+  <div class="flow-step" id="step-getin">
+    <div class="step-dot"></div>
+    <span>Get In →</span>
+  </div>
+  <div class="flow-step" id="step-onboard">
+    <div class="step-dot"></div>
+    <span>Onboarding</span>
+  </div>
+  <div class="flow-step" id="step-setup">
+    <div class="step-dot"></div>
+    <span>Profile Setup</span>
+  </div>
+  <div class="flow-step" id="step-trial">
+    <div class="step-dot"></div>
+    <span>Trial Starts (1 day)</span>
+  </div>
+  <div class="flow-step" id="step-pay">
+    <div class="step-dot"></div>
+    <span>Pay → Lifetime</span>
+  </div>
+  <div class="flow-step" id="step-playground">
+    <div class="step-dot"></div>
+    <span>1% Playground</span>
+  </div>
+</div>
+
+<!-- MAIN STAGE -->
+<div class="stage">
+  <div class="ambient"></div>
+
+  <!-- CAP Logo -->
+  <div style="margin-bottom:2rem;">
+    <div style="width:48px;height:48px;background:rgba(180,140,255,0.15);border:1px solid rgba(180,140,255,0.3);border-radius:4px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 12px rgba(200,180,255,0.3));">
+      <span style="font-family:'Rajdhani',sans-serif;font-size:0.55rem;letter-spacing:0.1em;color:rgba(180,140,255,0.8);">CAP</span>
+    </div>
+  </div>
+
+  <!-- SCREEN: LOADING -->
+  <div class="screen active" id="screen-loading">
+    <div class="loading-text">Verifying invite...</div>
+    <div class="spinner"></div>
+    <div style="margin-top:2rem;font-family:'Rajdhani',sans-serif;font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.15);">
+      API: beta.validate.useQuery({ token })
+    </div>
+  </div>
+
+  <!-- SCREEN: ARIA SPEAKING -->
+  <div class="screen" id="screen-speaking">
+    <div class="aria-wrap">
+      <div style="width:200px;height:280px;background:radial-gradient(ellipse at center, rgba(180,140,255,0.15) 0%, transparent 70%);display:flex;align-items:center;justify-content:center;position:relative;">
+        <div style="font-size:5rem;filter:drop-shadow(0 0 30px rgba(180,140,255,0.5));">🐇</div>
+        <div class="aria-ring visible"></div>
+      </div>
+    </div>
+    <div class="aria-quote">"Hey, I'm Ara — your AI guide.<br>Let's get you in."</div>
+    <div class="beta-label">Beta Access · VIP Invite</div>
+    <div class="waiting-dots">···</div>
+  </div>
+
+  <!-- SCREEN: READY -->
+  <div class="screen" id="screen-ready">
+    <div class="aria-wrap">
+      <div style="width:200px;height:280px;background:radial-gradient(ellipse at center, rgba(180,140,255,0.08) 0%, transparent 70%);display:flex;align-items:center;justify-content:center;">
+        <div style="font-size:5rem;">🐇</div>
+      </div>
+    </div>
+    <div class="aria-quote">"Hey, I'm Ara — your AI guide.<br>Let's get you in."</div>
+    <div class="beta-label">Beta Access · VIP Invite</div>
+    <button class="get-in-btn" onclick="showScreen('tiers')">Get In →</button>
+  </div>
+
+  <!-- SCREEN: INVALID -->
+  <div class="screen" id="screen-invalid">
+    <div class="access-denied">Access Denied</div>
+    <div class="error-msg" id="error-msg-text">This invite link is not valid.</div>
+    <a href="#" class="return-link">Return to site</a>
+  </div>
+
+  <!-- SCREEN: TIERS (Subscribe) -->
+  <div class="screen" id="screen-tiers">
+    <div class="tiers-title">Choose Your Tier</div>
+    <div class="tiers-sub">Your trial is active · 24 hours remaining</div>
+    <div class="tiers-grid">
+      <div class="tier-card">
+        <div class="tier-name">Basic</div>
+        <div class="tier-price">$99</div>
+        <div class="tier-period">/month</div>
+        <ul class="tier-features">
+          <li>1% Playground access</li>
+          <li>Core AI income tools</li>
+          <li>Community feed access</li>
+          <li>Basic vault discounts</li>
+          <li>Email support</li>
+        </ul>
+        <button class="tier-cta">Get Started</button>
+      </div>
+      <div class="tier-card popular">
+        <div class="tier-badge">Most Popular</div>
+        <div class="tier-name">Business</div>
+        <div class="tier-price">$199</div>
+        <div class="tier-period">/month</div>
+        <ul class="tier-features">
+          <li>Everything in Basic</li>
+          <li>Advanced AI automation</li>
+          <li>Priority vault access</li>
+          <li>40% revenue share</li>
+          <li>Business analytics</li>
+        </ul>
+        <button class="tier-cta">Go Business</button>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name">Enterprise</div>
+        <div class="tier-price">$399</div>
+        <div class="tier-period">/month</div>
+        <ul class="tier-features">
+          <li>Everything in Business</li>
+          <li>White-glove onboarding</li>
+          <li>Custom AI strategy</li>
+          <li>Inner circle access</li>
+          <li>Dedicated account mgr</li>
+        </ul>
+        <button class="tier-cta">Go Enterprise</button>
+      </div>
+    </div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);">
+      Cancel anytime · No credit card required for trial
+    </div>
+  </div>
+
+</div>
+
+<script>
+const errorMessages = {
+  not_found: "This invite link is not valid.",
+  inactive: "This invite link has been deactivated.",
+  already_used: "This invite link has already been used.",
+  expired: "This invite link has expired.",
+  db_unavailable: "System temporarily unavailable. Try again shortly."
+};
+
+const stepMap = {
+  'loading': 'step-validate',
+  'speaking': 'step-aria',
+  'ready': 'step-getin',
+  'tiers': 'step-pay',
+  'invalid': null
+};
+
+function showScreen(name) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.demo-btn:not(.error-btn)').forEach(b => b.classList.remove('active'));
+
+  // Show target
+  document.getElementById('screen-' + name).classList.add('active');
+
+  // Update button
+  const btns = document.querySelectorAll('.demo-btn:not(.error-btn)');
+  const idx = ['loading','speaking','ready','tiers'].indexOf(name);
+  if (idx >= 0) btns[idx].classList.add('active');
+
+  // Update token status
+  const statusEl = document.getElementById('token-status');
+  if (name === 'loading') {
+    statusEl.textContent = '● Checking...';
+    statusEl.className = 'token-status checking';
+  } else if (name === 'invalid') {
+    statusEl.textContent = '✗ Invalid';
+    statusEl.className = 'token-status invalid';
+  } else {
+    statusEl.textContent = '✓ Valid';
+    statusEl.className = 'token-status valid';
+  }
+
+  // Update flow map
+  const steps = ['step-validate','step-aria','step-getin','step-onboard','step-setup','step-trial','step-pay','step-playground'];
+  const currentSteps = {
+    'loading': 0,
+    'speaking': 1,
+    'ready': 2,
+    'tiers': 6
+  };
+  const current = currentSteps[name] ?? -1;
+  steps.forEach((s, i) => {
+    const el = document.getElementById(s);
+    el.className = 'flow-step';
+    if (i < current) el.classList.add('done');
+    else if (i === current) el.classList.add('current');
+  });
+}
+
+function showError(type) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.demo-btn:not(.error-btn)').forEach(b => b.classList.remove('active'));
+  document.getElementById('error-msg-text').textContent = errorMessages[type];
+  document.getElementById('screen-invalid').classList.add('active');
+
+  const statusEl = document.getElementById('token-status');
+  statusEl.textContent = '✗ ' + type.replace('_',' ');
+  statusEl.className = 'token-status invalid';
+
+  // Mark all flow steps as dim
+  document.querySelectorAll('.flow-step').forEach(s => {
+    s.className = 'flow-step error-step';
+  });
+}
+
+// Auto-advance demo on load
+setTimeout(() => showScreen('speaking'), 1500);
+setTimeout(() => showScreen('ready'), 4000);
+</script>
+</body>
+</html>

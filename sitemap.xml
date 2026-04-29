@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- ─── TIER 1: Core Pages ─────────────────────────────────────────── -->
+  <url>
+    <loc>https://createaiprofit.com/</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Staff Page -->
+  <url>
+    <loc>https://createaiprofit.com/staff</loc>
+    <lastmod>2026-03-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ─── TIER 2: Revenue Pages ─────────────────────────────────────── -->
+  <url>
+    <loc>https://createaiprofit.com/vault</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- CheckMate Show -->
+  <url>
+    <loc>https://createaiprofit.com/checkmate</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Mini Series -->
+  <url>
+    <loc>https://createaiprofit.com/series</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Episodes -->
+  <url>
+    <loc>https://createaiprofit.com/episodes</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Confidence Cologne -->
+  <url>
+    <loc>https://createaiprofit.com/cologne</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Wellness Bots -->
+  <url>
+    <loc>https://createaiprofit.com/wellness</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Live Streaming -->
+  <url>
+    <loc>https://createaiprofit.com/live</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- Affiliate Store -->
+  <url>
+    <loc>https://createaiprofit.com/store</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Subscribe / 1% Playground -->
+  <url>
+    <loc>https://createaiprofit.com/subscribe</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- ─── TIER 5: Legal ──────────────────────────────────────────────── -->
+  <!-- Terms of Service -->
+  <url>
+    <loc>https://createaiprofit.com/terms</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://createaiprofit.com/privacy</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Social Hub -->
+  <url>
+    <loc>https://createaiprofit.com/social-hub</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Airbnb Listings -->
+  <url>
+    <loc>https://createaiprofit.com/airbnb</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Real Estate Assignments -->
+  <url>
+    <loc>https://createaiprofit.com/realestate</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Book Club -->
+  <url>
+    <loc>https://createaiprofit.com/bookclub</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>

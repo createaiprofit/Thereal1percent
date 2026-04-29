@@ -1,0 +1,64 @@
+============================================================
+LOGIN PAGE (LoginOnboarding.tsx)
+============================================================
+l.opacity=.35+Math.sin(t.clock.elapsedTime*10)*.15)}),n?u.jsxs("mesh",{"data-loc":"client/src/pages/LoginOnboarding.tsx:100",ref:e,children:[u.jsx("planeGeometry",{"data-loc":"client/src/pages/LoginOnboarding.tsx:101",args:[4,.025]}),u.jsx("meshBasicMaterial",{"data-loc":"client/src/pages/LoginOnboarding.tsx:102",color:"#00ffcc",transparent:!0,opacity:.35})]}):null}function gle({active:n}){const e=X.useRef(null);return Gy(t=>{if(!e.current)return;e.current.rotation.z=t.clock.elapsedTime*2.5;const i=n?1+Math.sin(t.clock.elapsedTime*4)*.08:0;e.current.scale.setScalar(i)}),n?u.jsxs("group",{"data-loc":"client/src/pages/LoginOnboarding.tsx:117",ref:e,children:[u.jsxs("mesh",{"data-loc":"client/src/pages/LoginOnboarding.tsx:118",children:[u.jsx("torusGeometry",{"data-loc":"client/src/pages/LoginOnboarding.tsx:118",args:[1.8,.04,8,80]}),u.jsx("meshBasicMaterial",{"data-loc":"client/src/pages/LoginOnboarding.tsx:118",color:"#8800ff",transparent:!0,opacity:.8})]}),u.jsxs("mesh",{"data-loc":"client/src/pages/LoginOnboarding.tsx:119",children:[u.jsx("torusGeometry",{"data-loc":"client/src/pages/LoginOnboarding.tsx:119",args:[1.4,.025,8,64]}),u.jsx("meshBasicMaterial",{"data-loc":"client/src/pages/LoginOnboarding.tsx:119",color:"#cc00ff",transparent:!0,opacity:.5})]}),u.jsxs("mesh",{"data-loc":"client/src/pages/LoginOnboarding.tsx:120",children:[u.jsx("torusGeometry",{"data-loc":"client/src/pages/LoginOnboarding.tsx:120",args:[.9,.015,8,48]}),u.jsx("meshBasicMaterial",{"data-loc":"client/src/pages/LoginOnboarding.tsx:120",color:"#ff00cc",transparent:!0,opacity:.4})]})]}):null}function xle(){const[n,e]=X.useState("instructions"),[t,i]=X.useState(15),[r,a]=X.useState(!1),[s,l]=X.useState(!1),[c,f]=X.useState(!1),[p,x]=X.useState(!1),[b,y]=X.useState("self"),[v,T]=X.useState(null),[A,_]=X.useState(!1),[C,P]=X.useState(""),[k,I]=X.useState(!1),[B,F]=X.useState(!1),[j,D]=X.useState(!1),J=en.profile.saveConsent.useMutation(),U=X.useRef(null),W=X.useRef(null),H=X.useRef(null),Y=X.useRef(null),ie=X.useRef([]),$=X.useCallback(()=>{try{const K=new AudioContext,ne=K.createOscillator(),pe=K.createGain();ne.connect(pe),pe.connect(K.destination),ne.type="sawtooth",ne.frequency.setValueAtTime(220,K.currentTime),ne.frequency.linearRampToValueAtTime(880,K.currentTime+2),ne.frequency.linearRampToValueAtTime(220,K.currentTime+4),ne.frequency.linearRampToValueAtTime(1100,K.currentTime+6),ne.frequency.linearRampToValueAtTime(440,K.currentTime+10),pe.gain.setValueAtTime(.25,K.currentTime),pe.gain.linearRampToValueAtTime(.5,K.currentTime+5),pe.gain.linearRampToValueAtTime(0,K.currentTime+15),ne.start(K.currentTime),ne.stop(K.currentTime+15)}catch{}},[]),Q=X.useCallback(()=>{"vibrate"in navigator&&navigator.vibrate([300,100,300,100,500,200,1e3])},[]),re=X.useCallback(()=>{e("countdown"),$(),Q();let K=15;i(K);const ne=setInterval(()=>{K--,i(K),"vibrate"in navigator&&navigator.vibrate(40),W.current&&px.fromTo(W.current,{scale:1.4,color:K<=5?"#ff4444":"#ffffff"},{scale:1,color:K<=5?"#ff4444":"#ffffff",duration:.5,ease:"power2.out"}),K<=0&&(clearInterval(ne),e("hologram"),F(!0),U.current&&px.fromTo(U.current,{filter:"brightness(4) saturate(4)"},{filter:"brightness(1) saturate(1)",duration:2,ease:"power3.out"}),setTimeout(()=>{F(!1),D(!0),e("portal"),U.current&&px.to(U.current,{scale:.04,opacity:0,duration:1.4,ease:"power4.in",onComplete:()=>{D(!1),px.set(U.current,{scale:1,opacity:1}),e("walkin")}})},4e3))},1e3)},[$,Q]);X.useEffect(()=>{n==="walkin"&&H.current&&px.fromTo(H.current,{y:100,opacity:0,scale:.88},{y:0,opacity:1,scale:1,duration:2,ease:"power3.out",onComplete:()=>{setTimeout(()=>e("sit"),2500)}})},[n]),X.useEffect(()=>{n==="sit"&&setTimeout(()=>{e("terms"),I(!0),xe()},2200)},[n]);const xe=X.useCallback(()=>{if(!("speechSynthesis"in window)){setTimeout(()=>e("consent"),3e3);return}window.speechSynthesis.cancel();const K=new SpeechSynthesisUtterance(hle);K.rate=.88,K.pitch=.85,K.volume=1;const ne=window.speechSynthesis.getVoices(),pe=ne.find(le=>le.lang.startsWith("en")&&(le.name.toLowerCase().includes("female")||le.name.toLowerCase().includes("samantha"
+
+============================================================
+ONBOARDING STEPS / PHASES
+============================================================
+
+============================================================
+VIDEO / ARIA LIGHT SHOW
+============================================================
+
+[VIDEO] — 101 hits
+  >> olor:"rgba(148,163,170,0.6)",marginBottom:"1rem",textAlign:"center"},children:["Video Queue · ",P," Clips Staged"]}),u.jsx("div",{"data-loc":"client/src/pages/Home.tsx:1242",style:{display:"flex",gap:"0",marginBottom:"0",borderBottom:"1px solid rgba(255,255,255,0.08)",overflowX:"auto"},children:Obje
+  >> ",color:"rgba(255,255,255,0.4)"},children:r?"Drop to add to queue":"Drag & drop video clips here · or click to browse"}),u.jsx("div",{"data-loc":"client/src/pages/Home.tsx:1301",style:{fontFamily:"'Cormorant Garamond', serif",fontSize:"0.8rem",fontStyle:"italic",color:"rgba(255,255,255,0.2)",marginT
+  >> 48px",backgroundPosition:"0 0, 0 24px, 24px -24px, -24px 0px"},children:[u.jsx("video",{"data-loc":"client/src/pages/Home.tsx:2153",autoPlay:!0,muted:!0,loop:!0,playsInline:!0,style:{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center center",opacity:.22,z
+
+[LIGHTSHOW] — 2 hits
+
+[ELEVENLABS] — 8 hits
+  >> 1936",onClick:()=>{s2(()=>Promise.resolve().then(()=>_V),void 0).then(H=>H.speakElevenLabs("Welcome to the playground, millionaire. [pause] I run the system. [pause] The bots work. The money moves. [pause] You just have to show up. [pause] Create. AI. Profit.","EXAVITQu4vr4xnSDxMaL"))},style:{paddin
+  >> ginBottom:"1rem"},children:"Call Script — Sarah · 28yo · Light Southern Drawl · ElevenLabs Voice Clone"}),u.jsx("textarea",{"data-loc":"client/src/pages/ColdCallDashboard.tsx:207",defaultValue:pX,style:{width:"100%",minHeight:"400px",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255
+  >> rc/pages/ColdCallDashboard.tsx:227",onClick:()=>Ca.info("Voice preview requires ElevenLabs API key in Config tab."),style:{background:"transparent",border:"1px solid rgba(255,255,255,0.2)",color:"rgba(255,255,255,0.6)",padding:"0.7rem 2rem",fontSize:"0.7rem",letterSpacing:"0.25em",textTransform:"upp
+
+[SPEAKELEVEN] — 2 hits
+  >> .tsx:1936",onClick:()=>{s2(()=>Promise.resolve().then(()=>_V),void 0).then(H=>H.speakElevenLabs("Welcome to the playground, millionaire. [pause] I run the system. [pause] The bots work. The money moves. [pause] You just have to show up. [pause] Create. AI. Profit.","EXAVITQu4vr4xnSDxMaL"))},style:{p
+
+[HOLOGRAM] — 4 hits
+  >> .85)",marginBottom:"2rem",animation:"blink 0.5s step-end infinite"},children:"◈ HOLOGRAM LINK ESTABLISHED"}),u.jsx("div",{"data-loc":"client/src/pages/LoginOnboarding.tsx:457",style:{fontSize:"1.5rem",fontStyle:"italic",color:"rgba(0,255,200,0.9)"},children:"Aria Rabbit is materializing..."})]}),n==
+
+[HOLO] — 11 hits
+  >> d:!0},{id:10,title:"Influence",author:"Robert Cialdini",cover:"🎭",category:"Psychology",rating:4.6,members:"760",status:"coming_soon",quote:"The best persuaders become the best because they know how to make it easy for others to agree.",description:"The science of persuasion. Six principles that mov
+  >> adial-gradient(circle at 30% 50%, ${_.color}22 0%, transparent 70%)`,animation:"holoPulse 0.6s ease-in-out infinite alternate",pointerEvents:"none"}}),u.jsxs("div",{"data-loc":"client/src/pages/MiniSeries.tsx:605",style:{position:"relative",flexShrink:0},children:[u.jsx("img",{"data-loc":"client/src
+  >> nslateY(6px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes holoPulse { from { opacity:0.5; } to { opacity:1; } }
+        @keyframes waveBar1 { from { height:8px; } to { height:18px; } }
+        @keyframes waveBar2 { from { height:11px; } to { height:22px; } }
+        @keyframes 
+
+[INITIATING] — 1 hits
+  >> 0.8)",marginBottom:"1.5rem",animation:"blink 1s step-end infinite"},children:"⚠ INITIATING SECURE CHANNEL"}),u.jsx("div",{"data-loc":"client/src/pages/LoginOnboarding.tsx:427",ref:W,style:{fontSize:"clamp(6rem, 20vw, 12rem)",fontWeight:300,lineHeight:1,color:t<=5?"#ff4444":"#fff",textShadow:t<=5?"0 
+
+[PORTAL] — 21 hits
+  >> turn Zo.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE=i,Zo.createPortal=function(c,f){var p=2<arguments.length&&arguments[2]!==void 0?arguments[2]:null;if(!f||f.nodeType!==1&&f.nodeType!==9&&f.nodeType!==11)throw Error(e(299));return a(c,f,null,p)},Zo.flushSync=function(c){var f=s.T,p
+  >> ;case D:return"Activity"}if(typeof o=="object")switch(o.$$typeof){case v:return"Portal";case P:return o.displayName||"Context";case C:return(o._context.displayName||"Context")+".Consumer";case k:var d=o.render;return o=o.displayName,o||(o=d.displayName||d.name||"",o=o!==""?"ForwardRef("+o+")":"Forwa
+  >> on w7(n){const[e,t="center"]=n.split("-");return[e,t]}var Q9=b7,K9=v7,Z9=_7,J9="Portal",A7=X.forwardRef((n,e)=>{const{container:t,...i}=n,[r,a]=X.useState(!1);am(()=>a(!0),[]);const s=t||r&&globalThis?.document?.body;return s?KP.createPortal(u.jsx(wc.div,{...i,ref:e}),s):null});A7.displayName=J9;fun
+
+[HOLOGRAM] — 4 hits
+  >> .85)",marginBottom:"2rem",animation:"blink 0.5s step-end infinite"},children:"◈ HOLOGRAM LINK ESTABLISHED"}),u.jsx("div",{"data-loc":"client/src/pages/LoginOnboarding.tsx:457",style:{fontSize:"1.5rem",fontStyle:"italic",color:"rgba(0,255,200,0.9)"},children:"Aria Rabbit is materializing..."})]}),n==
+
+============================================================
+WELCOME / ARIA INTRO SEQUENCE
+============================================================
+
+============================================================
+LOGIN FORM FIELDS & LOGIC
+============================================================
+
+============================================================
+ARIA VOICE SCRIPTS (ElevenLabs)
+============================================================
+  ARIA SAYS: Welcome to the playground, millionaire. [pause] I run the system. [pause] The bots work. The money moves. [pause] You just have to show up. [pause] Create. AI. Profit.
+

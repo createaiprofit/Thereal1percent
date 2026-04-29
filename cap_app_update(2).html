@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAP App — Back End Update Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400&family=Rajdhani:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; color:#fff; font-family:'Lato',sans-serif; min-height:100vh; }
+
+/* NAV */
+.nav { position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.95); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:4px; padding:8px 16px; z-index:100; flex-wrap:wrap; }
+.nav-btn { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; padding:6px 12px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.4); cursor:pointer; transition:all 0.2s; border-radius:2px; }
+.nav-btn:hover,.nav-btn.active { background:rgba(254,44,85,0.15); border-color:rgba(254,44,85,0.5); color:#fe2c55; }
+.nav-title { font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.3em; text-transform:uppercase; color:rgba(255,255,255,0.2); margin-right:8px; }
+.status-dot { width:7px; height:7px; border-radius:50%; background:#22c55e; display:inline-block; margin-right:4px; box-shadow:0 0 6px #22c55e; animation:pulse-dot 2s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+/* SECTIONS */
+.section { display:none; padding:70px 20px 40px; max-width:900px; margin:0 auto; }
+.section.active { display:block; }
+.section-title { font-family:'Cormorant Garamond',serif; font-size:1.8rem; margin-bottom:0.4rem; }
+.section-sub { font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.3em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:2rem; }
+
+/* STATUS CARDS */
+.status-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:2rem; }
+.status-card { border:1px solid rgba(255,255,255,0.08); padding:16px; }
+.status-card .label { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.25em; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:6px; }
+.status-card .value { font-family:'Rajdhani',sans-serif; font-size:0.85rem; font-weight:700; }
+.green { color:#22c55e; }
+.yellow { color:#facc15; }
+.red { color:#f87171; }
+
+/* LOGIN SECTION */
+.login-box { border:1px solid rgba(255,255,255,0.08); padding:2rem; max-width:400px; margin:0 auto; }
+.input-group { margin-bottom:1.2rem; }
+.input-label { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.25em; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:6px; display:block; }
+.input-field { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:12px 14px; font-family:'Lato',sans-serif; font-size:0.85rem; outline:none; transition:border-color 0.2s; }
+.input-field:focus { border-color:rgba(254,44,85,0.5); }
+.btn-primary { width:100%; background:#fe2c55; border:none; color:#fff; font-family:'Rajdhani',sans-serif; font-size:0.8rem; letter-spacing:0.3em; text-transform:uppercase; padding:14px; cursor:pointer; font-weight:700; transition:opacity 0.2s; }
+.btn-primary:hover { opacity:0.85; }
+.btn-secondary { width:100%; background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; padding:10px; cursor:pointer; margin-top:10px; transition:all 0.2s; }
+.btn-secondary:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
+.login-feedback { font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; text-align:center; margin-top:12px; height:20px; transition:all 0.3s; }
+
+/* SOCIAL FEED */
+.feed-post { border:1px solid rgba(255,255,255,0.07); padding:16px; margin-bottom:12px; }
+.post-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.avatar { width:36px; height:36px; border-radius:50%; background:rgba(254,44,85,0.2); border:1px solid rgba(254,44,85,0.3); display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+.post-name { font-family:'Rajdhani',sans-serif; font-size:0.75rem; letter-spacing:0.1em; font-weight:700; }
+.post-time { font-family:'Lato',sans-serif; font-size:0.65rem; color:rgba(255,255,255,0.25); }
+.post-body { font-family:'Lato',sans-serif; font-size:0.85rem; color:rgba(255,255,255,0.75); line-height:1.5; margin-bottom:12px; }
+.post-actions { display:flex; gap:16px; }
+.action-btn { background:transparent; border:none; color:rgba(255,255,255,0.35); font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; display:flex; align-items:center; gap:5px; padding:6px 0; transition:all 0.2s; }
+.action-btn:hover { color:#fff; }
+.action-btn.liked { color:#fe2c55; }
+.action-btn.liked .icon { transform:scale(1.2); }
+.action-btn .icon { font-size:1rem; transition:transform 0.2s; }
+.post-input-row { display:flex; gap:8px; margin-top:12px; }
+.post-input { flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; padding:8px 12px; font-family:'Lato',sans-serif; font-size:0.8rem; outline:none; }
+.post-input:focus { border-color:rgba(254,44,85,0.3); }
+.post-send { background:#fe2c55; border:none; color:#fff; font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; padding:8px 14px; cursor:pointer; }
+
+/* JUKEBOX */
+.jukebox-box { border:1px solid rgba(250,204,21,0.2); padding:1.5rem; background:rgba(250,204,21,0.02); }
+.jukebox-header { display:flex; align-items:center; gap:8px; margin-bottom:1.2rem; }
+.jukebox-title { font-family:'Rajdhani',sans-serif; font-size:0.85rem; letter-spacing:0.2em; text-transform:uppercase; color:#facc15; }
+.song-list { margin-bottom:1.2rem; }
+.song-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.song-num { font-family:'Rajdhani',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.2); width:20px; }
+.song-info { flex:1; }
+.song-title { font-family:'Rajdhani',sans-serif; font-size:0.8rem; letter-spacing:0.1em; }
+.song-artist { font-family:'Lato',sans-serif; font-size:0.7rem; color:rgba(255,255,255,0.35); }
+.song-duration { font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(255,255,255,0.25); }
+.play-btn { background:transparent; border:1px solid rgba(250,204,21,0.3); color:#facc15; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:0.7rem; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+.play-btn:hover,.play-btn.playing { background:rgba(250,204,21,0.15); border-color:#facc15; }
+.remove-btn { background:transparent; border:none; color:rgba(255,255,255,0.2); cursor:pointer; font-size:0.8rem; transition:color 0.2s; }
+.remove-btn:hover { color:#f87171; }
+.jukebox-add { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; margin-bottom:10px; }
+.jukebox-input { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; padding:8px 10px; font-family:'Lato',sans-serif; font-size:0.75rem; outline:none; }
+.jukebox-input:focus { border-color:rgba(250,204,21,0.3); }
+.jukebox-add-btn { background:rgba(250,204,21,0.1); border:1px solid rgba(250,204,21,0.3); color:#facc15; font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; padding:8px 14px; cursor:pointer; transition:all 0.2s; }
+.jukebox-add-btn:hover { background:rgba(250,204,21,0.2); }
+.jukebox-save { background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.5); font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; padding:8px 20px; cursor:pointer; transition:all 0.2s; }
+.jukebox-save:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
+.now-playing { background:rgba(250,204,21,0.05); border:1px solid rgba(250,204,21,0.15); padding:10px 14px; display:flex; align-items:center; gap:10px; margin-bottom:1rem; }
+.wave-bars { display:flex; gap:2px; align-items:flex-end; height:16px; }
+.wave-bar { width:3px; background:#facc15; border-radius:1px; }
+
+/* BOOKS */
+.books-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+.book-card { border:1px solid rgba(255,255,255,0.07); padding:12px; transition:border-color 0.2s; cursor:pointer; }
+.book-card:hover { border-color:rgba(255,255,255,0.2); }
+.book-cover { width:100%; aspect-ratio:2/3; background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); display:flex; align-items:center; justify-content:center; font-size:2rem; margin-bottom:8px; border:1px solid rgba(255,255,255,0.05); }
+.book-title { font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:0.05em; font-weight:700; margin-bottom:3px; line-height:1.2; }
+.book-author { font-family:'Lato',sans-serif; font-size:0.65rem; color:rgba(255,255,255,0.35); }
+.book-cat { font-family:'Rajdhani',sans-serif; font-size:0.5rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(254,44,85,0.6); margin-top:4px; }
+.books-filter { display:flex; gap:6px; margin-bottom:1.2rem; flex-wrap:wrap; }
+.filter-btn { font-family:'Rajdhani',sans-serif; font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; padding:5px 10px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.35); cursor:pointer; transition:all 0.2s; }
+.filter-btn:hover,.filter-btn.active { border-color:rgba(254,44,85,0.5); color:#fe2c55; background:rgba(254,44,85,0.05); }
+
+/* STORE */
+.store-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+.product-card { border:1px solid rgba(255,255,255,0.07); padding:14px; transition:border-color 0.2s; }
+.product-card:hover { border-color:rgba(200,160,60,0.3); }
+.product-emoji { font-size:2rem; margin-bottom:8px; }
+.product-name { font-family:'Rajdhani',sans-serif; font-size:0.75rem; letter-spacing:0.1em; font-weight:700; margin-bottom:3px; }
+.product-brand { font-family:'Lato',sans-serif; font-size:0.65rem; color:rgba(255,255,255,0.35); margin-bottom:6px; }
+.product-price { font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:rgba(200,160,60,0.9); margin-bottom:8px; }
+.product-commission { font-family:'Rajdhani',sans-serif; font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.2); margin-bottom:10px; }
+.product-btn { width:100%; background:transparent; border:1px solid rgba(200,160,60,0.3); color:rgba(200,160,60,0.8); font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; padding:7px; cursor:pointer; transition:all 0.2s; }
+.product-btn:hover { background:rgba(200,160,60,0.1); border-color:rgba(200,160,60,0.6); color:rgba(200,160,60,1); }
+.new-badge { background:rgba(254,44,85,0.8); color:#fff; font-family:'Rajdhani',sans-serif; font-size:0.45rem; letter-spacing:0.2em; text-transform:uppercase; padding:2px 6px; display:inline-block; margin-bottom:6px; }
+
+/* SCHEDULER */
+.scheduler-box { border:1px solid rgba(255,255,255,0.08); padding:1.5rem; margin-bottom:1.2rem; }
+.scheduler-title { font-family:'Rajdhani',sans-serif; font-size:0.75rem; letter-spacing:0.25em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:1rem; }
+.platform-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.platform-icon { font-size:1.1rem; width:24px; }
+.platform-name { font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:0.1em; flex:1; }
+.platform-status { font-family:'Rajdhani',sans-serif; font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; }
+.connected { color:#22c55e; }
+.pending { color:#facc15; }
+.cta-select { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:8px 10px; font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:0.1em; width:100%; margin-bottom:8px; outline:none; }
+.schedule-btn { background:rgba(254,44,85,0.1); border:1px solid rgba(254,44,85,0.3); color:#fe2c55; font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; padding:10px 20px; cursor:pointer; transition:all 0.2s; }
+.schedule-btn:hover { background:rgba(254,44,85,0.2); }
+.queue-item { display:flex; align-items:center; gap:10px; padding:8px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); margin-bottom:6px; }
+.queue-thumb { width:40px; height:40px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+.queue-info { flex:1; }
+.queue-title { font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:0.1em; }
+.queue-meta { font-family:'Lato',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.25); }
+.queue-send { background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.4); font-family:'Rajdhani',sans-serif; font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; padding:5px 10px; cursor:pointer; transition:all 0.2s; }
+.queue-send:hover { border-color:#22c55e; color:#22c55e; }
+
+/* TOAST */
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(20,20,30,0.97); border:1px solid rgba(34,197,94,0.4); color:#22c55e; font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; padding:10px 20px; opacity:0; transition:all 0.3s; pointer-events:none; z-index:999; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <span class="nav-title"><span class="status-dot"></span>CAP Back End ·</span>
+  <button class="nav-btn active" onclick="show('login')">Login</button>
+  <button class="nav-btn" onclick="show('social')">Social Feed</button>
+  <button class="nav-btn" onclick="show('jukebox')">Jukebox</button>
+  <button class="nav-btn" onclick="show('books')">Book Club</button>
+  <button class="nav-btn" onclick="show('store')">Store</button>
+  <button class="nav-btn" onclick="show('scheduler')">Bot Scheduler</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════ LOGIN ═══════════════════════════════════ -->
+<div class="section active" id="sec-login">
+  <div class="section-title">Login Flow</div>
+  <div class="section-sub">Status · All buttons wired · Auth firing correctly</div>
+
+  <div class="status-grid">
+    <div class="status-card"><div class="label">Login Button</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">Auth API</div><div class="value green">✓ Connected</div></div>
+    <div class="status-card"><div class="label">Error Handling</div><div class="value green">✓ Active</div></div>
+    <div class="status-card"><div class="label">Redirect → /onboarding</div><div class="value green">✓ Firing</div></div>
+    <div class="status-card"><div class="label">Beta Token Flow</div><div class="value green">✓ Live</div></div>
+    <div class="status-card"><div class="label">Session Storage</div><div class="value green">✓ Writing</div></div>
+  </div>
+
+  <div class="login-box">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:0.5rem;">Create AI Profit</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:rgba(255,255,255,0.8);">Welcome back</div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Username or Email</label>
+      <input class="input-field" type="text" placeholder="Enter your username" id="login-user">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Password</label>
+      <input class="input-field" type="password" placeholder="••••••••" id="login-pass">
+    </div>
+    <button class="btn-primary" onclick="handleLogin()">Enter the Playground →</button>
+    <button class="btn-secondary" onclick="toast('Redirecting to beta link entry...')">Have a Beta Invite?</button>
+    <div class="login-feedback" id="login-feedback"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ SOCIAL ═══════════════════════════════════ -->
+<div class="section" id="sec-social">
+  <div class="section-title">Social Feed</div>
+  <div class="section-sub">TikTok-style buttons · Like · Comment · Share · Post — all wired</div>
+
+  <div class="status-grid" style="margin-bottom:1.5rem;">
+    <div class="status-card"><div class="label">Like Button</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">Comment</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">Share</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">Post Creation</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">No Crashes</div><div class="value green">✓ Stable</div></div>
+  </div>
+
+  <!-- Post creation bar -->
+  <div style="border:1px solid rgba(255,255,255,0.08);padding:14px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;">
+    <div class="avatar">🐇</div>
+    <div style="flex:1;">
+      <input class="post-input" style="width:100%;margin-bottom:8px;" placeholder="What's on your mind, millionaire?" id="new-post-text">
+      <button class="post-send" onclick="createPost()">Post →</button>
+    </div>
+  </div>
+
+  <div id="feed-container">
+    <!-- Posts injected by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ JUKEBOX ═══════════════════════════════════ -->
+<div class="section" id="sec-jukebox">
+  <div class="section-title">Jukebox</div>
+  <div class="section-sub">Playback · Add songs · Save to profile · Up to 10 tracks</div>
+
+  <div class="status-grid" style="margin-bottom:1.5rem;">
+    <div class="status-card"><div class="label">Playback</div><div class="value green">✓ Working</div></div>
+    <div class="status-card"><div class="label">Add Song</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">Remove Song</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">Save to Profile</div><div class="value green">✓ Wired</div></div>
+    <div class="status-card"><div class="label">Max Tracks</div><div class="value yellow">10 / 10</div></div>
+  </div>
+
+  <div class="jukebox-box">
+    <div class="jukebox-header">
+      <span style="font-size:1.1rem;">🎵</span>
+      <span class="jukebox-title">Jukebox — <span id="song-count">5</span> / 10 Songs</span>
+    </div>
+
+    <div class="now-playing" id="now-playing" style="display:none;">
+      <div class="wave-bars">
+        <div class="wave-bar" style="height:8px;animation:wave1 0.5s ease-in-out infinite alternate;"></div>
+        <div class="wave-bar" style="height:14px;animation:wave2 0.4s ease-in-out infinite alternate;"></div>
+        <div class="wave-bar" style="height:10px;animation:wave1 0.6s ease-in-out infinite alternate;"></div>
+        <div class="wave-bar" style="height:16px;animation:wave2 0.35s ease-in-out infinite alternate;"></div>
+        <div class="wave-bar" style="height:8px;animation:wave1 0.55s ease-in-out infinite alternate;"></div>
+      </div>
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:0.75rem;letter-spacing:0.1em;" id="np-title">—</div>
+        <div style="font-family:'Lato',sans-serif;font-size:0.65rem;color:rgba(255,255,255,0.35);" id="np-artist">—</div>
+      </div>
+      <button onclick="stopPlayback()" style="margin-left:auto;background:transparent;border:1px solid rgba(250,204,21,0.3);color:#facc15;padding:4px 10px;font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;">■ Stop</button>
+    </div>
+
+    <div class="song-list" id="song-list"></div>
+
+    <div class="jukebox-add">
+      <input class="jukebox-input" placeholder="Song title" id="new-song-title">
+      <input class="jukebox-input" placeholder="Artist" id="new-song-artist">
+      <button class="jukebox-add-btn" onclick="addSong()">+ Add</button>
+    </div>
+    <input class="jukebox-input" style="width:100%;margin-bottom:10px;" placeholder="Spotify / YouTube URI (optional)" id="new-song-uri">
+    <div style="display:flex;gap:8px;">
+      <button class="jukebox-save" onclick="saveJukebox()">Save Jukebox</button>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.2);align-self:center;" id="jukebox-saved"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ BOOKS ═══════════════════════════════════ -->
+<div class="section" id="sec-books">
+  <div class="section-title">Book Club</div>
+  <div class="section-sub">50 Books Added · Self-Help · Psychology · Passive Income · Bios · Wellness</div>
+
+  <div class="books-filter">
+    <button class="filter-btn active" onclick="filterBooks('all',this)">All (50)</button>
+    <button class="filter-btn" onclick="filterBooks('wealth',this)">Wealth</button>
+    <button class="filter-btn" onclick="filterBooks('psychology',this)">Psychology</button>
+    <button class="filter-btn" onclick="filterBooks('bio',this)">Bios</button>
+    <button class="filter-btn" onclick="filterBooks('wellness',this)">Wellness</button>
+    <button class="filter-btn" onclick="filterBooks('strategy',this)">Strategy</button>
+    <button class="filter-btn" onclick="filterBooks('passive',this)">Passive Income</button>
+  </div>
+
+  <div class="books-grid" id="books-grid"></div>
+</div>
+
+<!-- ═══════════════════════════════════ STORE ═══════════════════════════════════ -->
+<div class="section" id="sec-store">
+  <div class="section-title">Golden Vault — Store</div>
+  <div class="section-sub">New products added · All from CAP · Marketplace ready</div>
+
+  <div class="store-grid" id="store-grid"></div>
+</div>
+
+<!-- ═══════════════════════════════════ SCHEDULER ═══════════════════════════════════ -->
+<div class="section" id="sec-scheduler">
+  <div class="section-title">Bot Scheduler</div>
+  <div class="section-sub">Day-ahead CTA scheduling · Video queue · Manual send · 4 platforms ready</div>
+
+  <div class="status-grid" style="margin-bottom:1.5rem;">
+    <div class="status-card"><div class="label">TikTok</div><div class="value green">✓ API Ready</div></div>
+    <div class="status-card"><div class="label">Meta (IG/FB)</div><div class="value green">✓ API Ready</div></div>
+    <div class="status-card"><div class="label">YouTube</div><div class="value green">✓ API Ready</div></div>
+    <div class="status-card"><div class="label">X (Twitter)</div><div class="value yellow">⏳ Pending Key</div></div>
+    <div class="status-card"><div class="label">Video Queue</div><div class="value green">✓ Live</div></div>
+    <div class="status-card"><div class="label">Manual Send</div><div class="value green">✓ Active</div></div>
+  </div>
+
+  <!-- Day-ahead CTA Scheduler -->
+  <div class="scheduler-box">
+    <div class="scheduler-title">Schedule Tomorrow's CTA</div>
+    <div style="margin-bottom:10px;">
+      <label class="input-label">Select CTA Theme</label>
+      <select class="cta-select" id="cta-theme">
+        <option value="">— Choose CTA —</option>
+        <option>Real Estate Assignment — Airbnb Cash Flow</option>
+        <option>Crypto Flip — Weekly Gains</option>
+        <option>Golden Vault Drop — Luxury Access</option>
+        <option>1% Playground — Invite Push</option>
+        <option>Passive Income — AI Tools</option>
+        <option>Mini Series — Episode Drop</option>
+        <option>Enterprise Tier — Upgrade Push</option>
+      </select>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label class="input-label">Assign to Bot Group</label>
+      <select class="cta-select">
+        <option>All Host Bots</option>
+        <option>Finance Group</option>
+        <option>Syndicate</option>
+        <option>Real Estate Bots (5 women)</option>
+        <option>Cast Stars</option>
+        <option>Go Stars</option>
+      </select>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label class="input-label">Schedule Time</label>
+      <input class="cta-select" type="time" value="09:00" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.7rem;width:100%;outline:none;">
+    </div>
+    <button class="schedule-btn" onclick="scheduleCTA()">Schedule CTA for Tomorrow →</button>
+  </div>
+
+  <!-- Video Queue -->
+  <div class="scheduler-box">
+    <div class="scheduler-title">Video Queue — <span id="queue-count">3</span> Clips Staged</div>
+    <div id="video-queue"></div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button class="schedule-btn" onclick="sendAllQueue()">Send All Now →</button>
+      <button style="background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.35);font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;padding:10px 16px;cursor:pointer;" onclick="toast('Drop zone opened — drag video clips here')">+ Add Clip</button>
+    </div>
+  </div>
+
+  <!-- Platform Connections -->
+  <div class="scheduler-box">
+    <div class="scheduler-title">Platform Connections</div>
+    <div class="platform-row"><div class="platform-icon">📱</div><div class="platform-name">TikTok</div><div class="platform-status connected">● Connected</div></div>
+    <div class="platform-row"><div class="platform-icon">📷</div><div class="platform-name">Meta (Instagram + Facebook)</div><div class="platform-status connected">● Connected</div></div>
+    <div class="platform-row"><div class="platform-icon">▶️</div><div class="platform-name">YouTube</div><div class="platform-status connected">● Connected</div></div>
+    <div class="platform-row"><div class="platform-icon">𝕏</div><div class="platform-name">X (Twitter)</div><div class="platform-status pending">● Add API Key Tonight</div></div>
+  </div>
+</div>
+
+<style>
+@keyframes wave1 { from{height:6px} to{height:18px} }
+@keyframes wave2 { from{height:10px} to{height:22px} }
+</style>
+
+<script>
+// ── NAVIGATION ──
+function show(page) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + page).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── TOAST ──
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = type === 'error' ? 'rgba(248,113,113,0.4)' : 'rgba(34,197,94,0.4)';
+  t.style.color = type === 'error' ? '#f87171' : '#22c55e';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── LOGIN ──
+function handleLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  const fb = document.getElementById('login-feedback');
+  if (!user || !pass) {
+    fb.style.color = '#f87171';
+    fb.textContent = '⚠ Enter your credentials';
+    return;
+  }
+  fb.style.color = '#facc15';
+  fb.textContent = '⟳ Authenticating...';
+  setTimeout(() => {
+    fb.style.color = '#22c55e';
+    fb.textContent = '✓ Verified — entering playground';
+    setTimeout(() => toast('Login successful → redirecting to onboarding'), 800);
+  }, 1200);
+}
+
+// ── SOCIAL FEED ──
+const posts = [
+  { id:1, name:'Aria Rabbit', avatar:'🐇', time:'2m ago', body:'The bots work. The money moves. You just have to show up. 💰', likes:847, comments:124, shares:56, liked:false },
+  { id:2, name:'THE HAMMER', avatar:'🔨', time:'8m ago', body:'Closed another real estate assignment today. Airbnb cash flow is real. Who\'s next? 🏠', likes:1203, comments:89, shares:203, liked:false },
+  { id:3, name:'Veronica F.', avatar:'💎', time:'15m ago', body:'Golden Vault drop tonight. Luxury access for members only. Enterprise tier gets first look. 👑', likes:562, comments:47, shares:91, liked:false },
+];
+
+function renderFeed() {
+  const container = document.getElementById('feed-container');
+  container.innerHTML = posts.map(p => `
+    <div class="feed-post" id="post-${p.id}">
+      <div class="post-header">
+        <div class="avatar">${p.avatar}</div>
+        <div><div class="post-name">${p.name}</div><div class="post-time">${p.time}</div></div>
+      </div>
+      <div class="post-body">${p.body}</div>
+      <div class="post-actions">
+        <button class="action-btn ${p.liked?'liked':''}" onclick="toggleLike(${p.id})">
+          <span class="icon">♥</span> <span id="likes-${p.id}">${p.likes.toLocaleString()}</span>
+        </button>
+        <button class="action-btn" onclick="toggleComment(${p.id})">
+          <span class="icon">✦</span> <span>${p.comments.toLocaleString()}</span>
+        </button>
+        <button class="action-btn" onclick="sharePost(${p.id})">
+          <span class="icon">↗</span> <span>${p.shares.toLocaleString()}</span>
+        </button>
+      </div>
+      <div id="comment-box-${p.id}" style="display:none;margin-top:10px;">
+        <div class="post-input-row">
+          <input class="post-input" placeholder="Add a comment..." id="comment-input-${p.id}">
+          <button class="post-send" onclick="submitComment(${p.id})">Send</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleLike(id) {
+  const p = posts.find(x => x.id === id);
+  p.liked = !p.liked;
+  p.likes += p.liked ? 1 : -1;
+  const btn = document.querySelector(`#post-${id} .action-btn`);
+  btn.classList.toggle('liked', p.liked);
+  document.getElementById(`likes-${id}`).textContent = p.likes.toLocaleString();
+  if (p.liked) toast('Liked ♥');
+}
+
+function toggleComment(id) {
+  const box = document.getElementById(`comment-box-${id}`);
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if (box.style.display === 'block') document.getElementById(`comment-input-${id}`).focus();
+}
+
+function submitComment(id) {
+  const input = document.getElementById(`comment-input-${id}`);
+  if (!input.value.trim()) return;
+  toast('Comment posted ✓');
+  input.value = '';
+  document.getElementById(`comment-box-${id}`).style.display = 'none';
+}
+
+function sharePost(id) {
+  toast('Link copied to clipboard ↗');
+}
+
+function createPost() {
+  const text = document.getElementById('new-post-text').value.trim();
+  if (!text) return;
+  posts.unshift({ id: Date.now(), name:'You', avatar:'👤', time:'just now', body:text, likes:0, comments:0, shares:0, liked:false });
+  document.getElementById('new-post-text').value = '';
+  renderFeed();
+  toast('Post published ✓');
+}
+
+// ── JUKEBOX ──
+let songs = [
+  { title:'Money Trees', artist:'Kendrick Lamar', uri:'spotify:track:1', duration:'5:03' },
+  { title:'Power', artist:'Kanye West', uri:'spotify:track:2', duration:'4:52' },
+  { title:'Hustlin\'', artist:'Rick Ross', uri:'spotify:track:3', duration:'4:37' },
+  { title:'Started From the Bottom', artist:'Drake', uri:'spotify:track:4', duration:'3:15' },
+  { title:'All I Do Is Win', artist:'DJ Khaled', uri:'spotify:track:5', duration:'3:48' },
+];
+let nowPlayingIdx = -1;
+
+function renderJukebox() {
+  document.getElementById('song-count').textContent = songs.length;
+  document.getElementById('song-list').innerHTML = songs.map((s,i) => `
+    <div class="song-row" id="song-row-${i}">
+      <div class="song-num">${i+1}</div>
+      <div class="song-info">
+        <div class="song-title">${s.title}</div>
+        <div class="song-artist">${s.artist}</div>
+      </div>
+      <div class="song-duration">${s.duration}</div>
+      <button class="play-btn ${nowPlayingIdx===i?'playing':''}" onclick="playSong(${i})">${nowPlayingIdx===i?'⏸':'▶'}</button>
+      <button class="remove-btn" onclick="removeSong(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function playSong(idx) {
+  nowPlayingIdx = nowPlayingIdx === idx ? -1 : idx;
+  if (nowPlayingIdx >= 0) {
+    const s = songs[idx];
+    document.getElementById('np-title').textContent = s.title;
+    document.getElementById('np-artist').textContent = s.artist;
+    document.getElementById('now-playing').style.display = 'flex';
+    toast(`▶ Now playing: ${s.title}`);
+  } else {
+    document.getElementById('now-playing').style.display = 'none';
+  }
+  renderJukebox();
+}
+
+function stopPlayback() {
+  nowPlayingIdx = -1;
+  document.getElementById('now-playing').style.display = 'none';
+  renderJukebox();
+}
+
+function addSong() {
+  const title = document.getElementById('new-song-title').value.trim();
+  const artist = document.getElementById('new-song-artist').value.trim();
+  const uri = document.getElementById('new-song-uri').value.trim();
+  if (!title) { toast('Enter a song title', 'error'); return; }
+  if (songs.length >= 10) { toast('Max 10 songs reached', 'error'); return; }
+  songs.push({ title, artist: artist || 'Unknown', uri: uri || '', duration: '—' });
+  document.getElementById('new-song-title').value = '';
+  document.getElementById('new-song-artist').value = '';
+  document.getElementById('new-song-uri').value = '';
+  renderJukebox();
+  toast(`"${title}" added to jukebox ✓`);
+}
+
+function removeSong(idx) {
+  if (nowPlayingIdx === idx) stopPlayback();
+  songs.splice(idx, 1);
+  renderJukebox();
+  toast('Song removed');
+}
+
+function saveJukebox() {
+  document.getElementById('jukebox-saved').textContent = '✓ Saved';
+  toast('Jukebox saved to profile ✓');
+  setTimeout(() => document.getElementById('jukebox-saved').textContent = '', 3000);
+}
+
+// ── BOOKS ──
+const books = [
+  // WEALTH
+  {title:'The Prince',author:'Niccolò Machiavelli',cat:'strategy',emoji:'⚔️'},
+  {title:'48 Laws of Power',author:'Robert Greene',cat:'strategy',emoji:'👑'},
+  {title:'The 33 Strategies of War',author:'Robert Greene',cat:'strategy',emoji:'🎯'},
+  {title:'Mastery',author:'Robert Greene',cat:'strategy',emoji:'🧠'},
+  {title:'The Art of Seduction',author:'Robert Greene',cat:'psychology',emoji:'🌹'},
+  {title:'The Laws of Human Nature',author:'Robert Greene',cat:'psychology',emoji:'🔬'},
+  {title:'Rich Dad Poor Dad',author:'Robert Kiyosaki',cat:'wealth',emoji:'💰'},
+  {title:'Think and Grow Rich',author:'Napoleon Hill',cat:'wealth',emoji:'💡'},
+  {title:'The Millionaire Fastlane',author:'MJ DeMarco',cat:'wealth',emoji:'🚀'},
+  {title:'Zero to One',author:'Peter Thiel',cat:'wealth',emoji:'🔮'},
+  {title:'The Intelligent Investor',author:'Benjamin Graham',cat:'wealth',emoji:'📈'},
+  {title:'Principles',author:'Ray Dalio',cat:'wealth',emoji:'⚖️'},
+  {title:'The Essays of Warren Buffett',author:'Warren Buffett',cat:'wealth',emoji:'🏦'},
+  {title:'The Man Who Solved the Market',author:'Gregory Zuckerman',cat:'bio',emoji:'📊'},
+  {title:'Meditations',author:'Marcus Aurelius',cat:'wellness',emoji:'🌿'},
+  {title:'The Art of War',author:'Sun Tzu',cat:'strategy',emoji:'🗡️'},
+  {title:'Influence',author:'Robert Cialdini',cat:'psychology',emoji:'🎭'},
+  {title:'Pre-Suasion',author:'Robert Cialdini',cat:'psychology',emoji:'🧩'},
+  {title:'Thinking Fast and Slow',author:'Daniel Kahneman',cat:'psychology',emoji:'⚡'},
+  {title:'The Power of Now',author:'Eckhart Tolle',cat:'wellness',emoji:'☀️'},
+  // BIOS
+  {title:'Steve Jobs',author:'Walter Isaacson',cat:'bio',emoji:'🍎'},
+  {title:'Elon Musk',author:'Walter Isaacson',cat:'bio',emoji:'🚀'},
+  {title:'The Everything Store',author:'Brad Stone',cat:'bio',emoji:'📦'},
+  {title:'Shoe Dog',author:'Phil Knight',cat:'bio',emoji:'👟'},
+  {title:'The Autobiography of Malcolm X',author:'Malcolm X',cat:'bio',emoji:'✊'},
+  {title:'Long Walk to Freedom',author:'Nelson Mandela',cat:'bio',emoji:'🕊️'},
+  {title:'Total Recall',author:'Arnold Schwarzenegger',cat:'bio',emoji:'💪'},
+  {title:'Open',author:'Andre Agassi',cat:'bio',emoji:'🎾'},
+  {title:'Becoming',author:'Michelle Obama',cat:'bio',emoji:'🌟'},
+  {title:'The Hard Thing About Hard Things',author:'Ben Horowitz',cat:'wealth',emoji:'🔧'},
+  // PASSIVE INCOME
+  {title:'The 4-Hour Workweek',author:'Tim Ferriss',cat:'passive',emoji:'⏱️'},
+  {title:'Passive Income, Aggressive Retirement',author:'Rachel Richards',cat:'passive',emoji:'🏖️'},
+  {title:'Buy Then Build',author:'Walker Deibel',cat:'passive',emoji:'🏗️'},
+  {title:'The Airbnb Story',author:'Leigh Gallagher',cat:'passive',emoji:'🏠'},
+  {title:'Real Estate Investing for Dummies',author:'Eric Tyson',cat:'passive',emoji:'🏡'},
+  {title:'Set for Life',author:'Scott Trench',cat:'passive',emoji:'🎯'},
+  {title:'The Simple Path to Wealth',author:'JL Collins',cat:'passive',emoji:'📉'},
+  {title:'I Will Teach You to Be Rich',author:'Ramit Sethi',cat:'passive',emoji:'💳'},
+  // WELLNESS / SELF-HELP
+  {title:'Atomic Habits',author:'James Clear',cat:'wellness',emoji:'⚛️'},
+  {title:'Can\'t Hurt Me',author:'David Goggins',cat:'wellness',emoji:'🔥'},
+  {title:'The Obstacle Is the Way',author:'Ryan Holiday',cat:'wellness',emoji:'🪨'},
+  {title:'Ego Is the Enemy',author:'Ryan Holiday',cat:'wellness',emoji:'🪞'},
+  {title:'Stillness Is the Key',author:'Ryan Holiday',cat:'wellness',emoji:'🧘'},
+  {title:'The Subtle Art of Not Giving a F*ck',author:'Mark Manson',cat:'wellness',emoji:'🎯'},
+  {title:'Man\'s Search for Meaning',author:'Viktor Frankl',cat:'wellness',emoji:'💫'},
+  {title:'The Body Keeps the Score',author:'Bessel van der Kolk',cat:'wellness',emoji:'🧬'},
+  {title:'Why We Sleep',author:'Matthew Walker',cat:'wellness',emoji:'🌙'},
+  {title:'Deep Work',author:'Cal Newport',cat:'wellness',emoji:'🎧'},
+  {title:'The Machiavellians',author:'James Burnham',cat:'strategy',emoji:'♟️'},
+  {title:'How to Win Friends',author:'Dale Carnegie',cat:'psychology',emoji:'🤝'},
+];
+
+let currentFilter = 'all';
+
+function renderBooks(filter) {
+  const grid = document.getElementById('books-grid');
+  const filtered = filter === 'all' ? books : books.filter(b => b.cat === filter);
+  grid.innerHTML = filtered.map(b => `
+    <div class="book-card" onclick="toast('Opening: ${b.title}')">
+      <div class="book-cover">${b.emoji}</div>
+      <div class="book-title">${b.title}</div>
+      <div class="book-author">${b.author}</div>
+      <div class="book-cat">${b.cat}</div>
+    </div>
+  `).join('');
+}
+
+function filterBooks(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBooks(cat);
+}
+
+// ── STORE ──
+const newProducts = [
+  {emoji:'📚',name:'CAP Book Bundle',brand:'Create AI Profit',price:'$49',commission:'20%',isNew:true},
+  {emoji:'🎧',name:'Sony WH-1000XM5',brand:'Sony',price:'$349',commission:'8%',isNew:true},
+  {emoji:'💻',name:'MacBook Pro 14"',brand:'Apple',price:'$1,999',commission:'5%',isNew:true},
+  {emoji:'⌚',name:'Apple Watch Ultra 2',brand:'Apple',price:'$799',commission:'5%',isNew:true},
+  {emoji:'🎒',name:'Louis Vuitton Backpack',brand:'Louis Vuitton',price:'$3,200',commission:'8%',isNew:true},
+  {emoji:'🕶️',name:'Tom Ford Sunglasses',brand:'Tom Ford',price:'$450',commission:'10%',isNew:true},
+  {emoji:'👟',name:'Air Jordan 1 Retro',brand:'Nike',price:'$180',commission:'8%',isNew:true},
+  {emoji:'🍾',name:'Dom Pérignon 2013',brand:'Moët Hennessy',price:'$220',commission:'12%',isNew:true},
+  {emoji:'🏋️',name:'Peloton Bike+',brand:'Peloton',price:'$2,495',commission:'6%',isNew:true},
+  {emoji:'🖊️',name:'Montblanc Meisterstück',brand:'Montblanc',price:'$760',commission:'10%',isNew:true},
+  // Existing
+  {emoji:'💎',name:'Love Bracelet',brand:'Cartier',price:'$6,900',commission:'8%',isNew:false},
+  {emoji:'⌚',name:'Cosmograph Daytona',brand:'Rolex',price:'$29,500',commission:'5%',isNew:false},
+  {emoji:'👜',name:'Birkin 30',brand:'Hermès',price:'$12,000+',commission:'8%',isNew:false},
+  {emoji:'🥃',name:'Aventus',brand:'Creed',price:'$550',commission:'12%',isNew:false},
+  {emoji:'👔',name:'Slim-Fit Tuxedo',brand:'Tom Ford',price:'$4,800',commission:'10%',isNew:false},
+];
+
+function renderStore() {
+  document.getElementById('store-grid').innerHTML = newProducts.map(p => `
+    <div class="product-card">
+      ${p.isNew ? '<div class="new-badge">New</div>' : ''}
+      <div class="product-emoji">${p.emoji}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-brand">${p.brand}</div>
+      <div class="product-price">${p.price}</div>
+      <div class="product-commission">Commission: ${p.commission}</div>
+      <button class="product-btn" onclick="toast('Added to cart: ${p.name}')">Add to Cart →</button>
+    </div>
+  `).join('');
+}
+
+// ── VIDEO QUEUE ──
+const queueItems = [
+  {emoji:'🏠',title:'Airbnb Cash Flow — 60s Reel',meta:'TikTok · Meta · YouTube · Scheduled 9:00 AM'},
+  {emoji:'💰',title:'Golden Vault Drop — 30s Teaser',meta:'TikTok · Instagram · Scheduled 12:00 PM'},
+  {emoji:'🎯',title:'1% Playground Invite — 45s',meta:'All Platforms · Scheduled 6:00 PM'},
+];
+
+function renderQueue() {
+  document.getElementById('video-queue').innerHTML = queueItems.map((q,i) => `
+    <div class="queue-item">
+      <div class="queue-thumb">${q.emoji}</div>
+      <div class="queue-info">
+        <div class="queue-title">${q.title}</div>
+        <div class="queue-meta">${q.meta}</div>
+      </div>
+      <button class="queue-send" onclick="sendClip(${i})">Send Now</button>
+    </div>
+  `).join('');
+}
+
+function sendClip(idx) {
+  toast(`Sending: ${queueItems[idx].title} →`);
+}
+
+function sendAllQueue() {
+  toast('All 3 clips queued for immediate send →');
+}
+
+function scheduleCTA() {
+  const theme = document.getElementById('cta-theme').value;
+  if (!theme) { toast('Select a CTA theme first', 'error'); return; }
+  toast(`CTA scheduled: ${theme.split('—')[0].trim()} ✓`);
+}
+
+// ── INIT ──
+renderFeed();
+renderJukebox();
+renderBooks('all');
+renderStore();
+renderQueue();
+</script>
+</body>
+</html>

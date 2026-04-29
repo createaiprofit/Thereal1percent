@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAP — Jukebox + Concierge Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,300;1,400&family=Rajdhani:wght@400;600;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; color:#fff; font-family:'Lato',sans-serif; min-height:100vh; }
+
+/* NAV */
+.nav { position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.97); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:6px; padding:10px 20px; z-index:100; }
+.nav-logo { font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.4em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-right:12px; }
+.nav-btn { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; padding:7px 14px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.4); cursor:pointer; transition:all 0.2s; }
+.nav-btn:hover,.nav-btn.active { background:rgba(250,204,21,0.1); border-color:rgba(250,204,21,0.4); color:#facc15; }
+.nav-btn.concierge-btn:hover,.nav-btn.concierge-btn.active { background:rgba(200,160,60,0.1); border-color:rgba(200,160,60,0.5); color:rgba(200,160,60,1); }
+
+/* SECTIONS */
+.section { display:none; padding:70px 20px 60px; max-width:860px; margin:0 auto; }
+.section.active { display:block; animation:fadeIn 0.4s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* TOAST */
+.toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(16px); background:rgba(10,10,20,0.97); border:1px solid rgba(250,204,21,0.4); color:#facc15; font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.25em; text-transform:uppercase; padding:10px 22px; opacity:0; transition:all 0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ═══════════ JUKEBOX ═══════════ */
+.juke-header { margin-bottom:2rem; }
+.juke-title { font-family:'Cormorant Garamond',serif; font-size:2rem; margin-bottom:0.3rem; }
+.juke-sub { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.35em; text-transform:uppercase; color:rgba(255,255,255,0.25); }
+
+/* Player bar */
+.player-bar { background:rgba(250,204,21,0.04); border:1px solid rgba(250,204,21,0.15); padding:14px 18px; display:flex; align-items:center; gap:14px; margin-bottom:1.5rem; }
+.player-info { flex:1; min-width:0; }
+.player-title { font-family:'Rajdhani',sans-serif; font-size:0.85rem; letter-spacing:0.1em; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.player-artist { font-family:'Lato',sans-serif; font-size:0.7rem; color:rgba(255,255,255,0.35); }
+.player-controls { display:flex; align-items:center; gap:8px; }
+.ctrl-btn { background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:1rem; cursor:pointer; padding:4px 6px; transition:color 0.2s; }
+.ctrl-btn:hover { color:#fff; }
+.ctrl-btn.play-main { background:rgba(250,204,21,0.15); border:1px solid rgba(250,204,21,0.4); color:#facc15; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; }
+.ctrl-btn.play-main:hover { background:rgba(250,204,21,0.25); }
+.progress-wrap { flex:1; display:flex; align-items:center; gap:8px; }
+.progress-bar { flex:1; height:3px; background:rgba(255,255,255,0.1); border-radius:2px; cursor:pointer; position:relative; }
+.progress-fill { height:100%; background:#facc15; border-radius:2px; transition:width 0.5s linear; }
+.time-label { font-family:'Rajdhani',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.25); white-space:nowrap; }
+.volume-wrap { display:flex; align-items:center; gap:6px; }
+.vol-icon { font-size:0.85rem; color:rgba(255,255,255,0.3); }
+.vol-slider { width:60px; height:3px; background:rgba(255,255,255,0.1); border-radius:2px; cursor:pointer; }
+.wave-bars { display:flex; gap:2px; align-items:flex-end; height:18px; flex-shrink:0; }
+.wave-bar { width:3px; background:#facc15; border-radius:1px; }
+
+/* Tabs */
+.juke-tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1.2rem; }
+.juke-tab { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.25em; text-transform:uppercase; padding:8px 16px; border:none; background:transparent; color:rgba(255,255,255,0.3); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s; }
+.juke-tab.active { color:#facc15; border-bottom-color:#facc15; }
+
+/* Song list */
+.song-list { margin-bottom:1.2rem; }
+.song-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:4px; transition:background 0.2s; cursor:pointer; }
+.song-row:hover { background:rgba(255,255,255,0.03); }
+.song-row.playing { background:rgba(250,204,21,0.05); }
+.song-num { font-family:'Rajdhani',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.2); width:18px; text-align:center; flex-shrink:0; }
+.song-num.playing-icon { color:#facc15; }
+.song-info { flex:1; min-width:0; }
+.song-title { font-family:'Rajdhani',sans-serif; font-size:0.8rem; letter-spacing:0.05em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.song-title.playing { color:#facc15; }
+.song-artist { font-family:'Lato',sans-serif; font-size:0.65rem; color:rgba(255,255,255,0.3); }
+.song-dur { font-family:'Rajdhani',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.2); flex-shrink:0; }
+.song-actions { display:flex; gap:4px; opacity:0; transition:opacity 0.2s; }
+.song-row:hover .song-actions { opacity:1; }
+.song-action-btn { background:transparent; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:0.75rem; padding:3px 5px; transition:color 0.2s; }
+.song-action-btn:hover { color:#fff; }
+.song-action-btn.del:hover { color:#f87171; }
+
+/* Add song form */
+.add-form { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); padding:1.2rem; margin-bottom:1rem; }
+.add-form-title { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:1rem; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.form-input { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; padding:9px 12px; font-family:'Lato',sans-serif; font-size:0.8rem; outline:none; transition:border-color 0.2s; width:100%; }
+.form-input:focus { border-color:rgba(250,204,21,0.4); }
+.form-input::placeholder { color:rgba(255,255,255,0.2); }
+.form-btns { display:flex; gap:8px; margin-top:10px; }
+.btn-gold { background:rgba(250,204,21,0.1); border:1px solid rgba(250,204,21,0.35); color:#facc15; font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; padding:9px 20px; cursor:pointer; transition:all 0.2s; }
+.btn-gold:hover { background:rgba(250,204,21,0.2); }
+.btn-ghost { background:transparent; border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.4); font-family:'Rajdhani',sans-serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; padding:9px 20px; cursor:pointer; transition:all 0.2s; }
+.btn-ghost:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
+
+/* Queue panel */
+.queue-panel { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); padding:1.2rem; }
+.queue-title { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.3em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:1rem; }
+.queue-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.queue-pos { font-family:'Rajdhani',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.2); width:16px; }
+.queue-name { font-family:'Rajdhani',sans-serif; font-size:0.75rem; flex:1; }
+.queue-up { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.3); font-size:0.7rem; padding:3px 7px; cursor:pointer; transition:all 0.2s; }
+.queue-up:hover { border-color:rgba(250,204,21,0.4); color:#facc15; }
+
+/* ═══════════ CONCIERGE ═══════════ */
+.conc-hero { text-align:center; padding:2rem 0 2.5rem; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:2rem; }
+.conc-badge { font-family:'Rajdhani',sans-serif; font-size:0.55rem; letter-spacing:0.4em; text-transform:uppercase; color:rgba(200,160,60,0.7); margin-bottom:0.8rem; }
+.conc-title { font-family:'Cormorant Garamond',serif; font-size:2.4rem; font-style:italic; color:rgba(255,255,255,0.9); margin-bottom:0.6rem; line-height:1.2; }
+.conc-sub { font-family:'Lato',sans-serif; font-size:0.85rem; color:rgba(255,255,255,0.4); max-width:500px; margin:0 auto 1.5rem; line-height:1.6; }
+.conc-cta-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.btn-gold-solid { background:rgba(200,160,60,0.9); border:none; color:#000; font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; padding:12px 28px; cursor:pointer; font-weight:700; transition:opacity 0.2s; }
+.btn-gold-solid:hover { opacity:0.85; }
+
+/* City grid */
+.city-section { margin-bottom:2.5rem; }
+.section-label { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.35em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:1rem; }
+.city-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; }
+.city-card { border:1px solid rgba(255,255,255,0.07); padding:12px 14px; cursor:pointer; transition:all 0.2s; }
+.city-card:hover,.city-card.selected { border-color:rgba(200,160,60,0.5); background:rgba(200,160,60,0.04); }
+.city-name { font-family:'Rajdhani',sans-serif; font-size:0.75rem; letter-spacing:0.1em; font-weight:700; }
+.city-status { font-family:'Lato',sans-serif; font-size:0.6rem; color:rgba(255,255,255,0.25); margin-top:3px; }
+.city-status.hot { color:rgba(254,44,85,0.7); }
+.city-status.open { color:rgba(34,197,94,0.7); }
+
+/* Host application form */
+.host-form { border:1px solid rgba(200,160,60,0.2); padding:1.8rem; margin-bottom:2rem; }
+.host-form-title { font-family:'Cormorant Garamond',serif; font-size:1.4rem; margin-bottom:0.4rem; }
+.host-form-sub { font-family:'Lato',sans-serif; font-size:0.75rem; color:rgba(255,255,255,0.35); margin-bottom:1.5rem; line-height:1.5; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.form-label { font-family:'Rajdhani',sans-serif; font-size:0.55rem; letter-spacing:0.25em; text-transform:uppercase; color:rgba(255,255,255,0.3); display:block; margin-bottom:5px; }
+.form-select { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; padding:9px 12px; font-family:'Lato',sans-serif; font-size:0.8rem; outline:none; width:100%; }
+.form-select:focus { border-color:rgba(200,160,60,0.4); }
+.form-textarea { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; padding:9px 12px; font-family:'Lato',sans-serif; font-size:0.8rem; outline:none; width:100%; min-height:80px; resize:vertical; }
+.form-textarea:focus { border-color:rgba(200,160,60,0.4); }
+.form-textarea::placeholder,.form-input::placeholder { color:rgba(255,255,255,0.2); }
+
+/* Earnings preview */
+.earnings-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:2rem; }
+.earn-card { border:1px solid rgba(255,255,255,0.07); padding:16px; text-align:center; }
+.earn-amount { font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:rgba(200,160,60,0.9); margin-bottom:4px; }
+.earn-label { font-family:'Rajdhani',sans-serif; font-size:0.55rem; letter-spacing:0.25em; text-transform:uppercase; color:rgba(255,255,255,0.25); }
+
+/* Terms accordion */
+.terms-section { margin-bottom:2rem; }
+.terms-item { border:1px solid rgba(255,255,255,0.07); margin-bottom:6px; }
+.terms-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; cursor:pointer; transition:background 0.2s; }
+.terms-header:hover { background:rgba(255,255,255,0.02); }
+.terms-num { font-family:'Rajdhani',sans-serif; font-size:0.6rem; letter-spacing:0.2em; color:rgba(200,160,60,0.6); margin-right:10px; }
+.terms-title { font-family:'Rajdhani',sans-serif; font-size:0.75rem; letter-spacing:0.1em; flex:1; }
+.terms-arrow { font-size:0.7rem; color:rgba(255,255,255,0.25); transition:transform 0.2s; }
+.terms-arrow.open { transform:rotate(180deg); }
+.terms-body { display:none; padding:0 16px 14px; font-family:'Lato',sans-serif; font-size:0.8rem; color:rgba(255,255,255,0.45); line-height:1.7; }
+.terms-body.open { display:block; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-logo">CAP ·</div>
+  <button class="nav-btn active" onclick="show('jukebox',this)">🎵 Jukebox</button>
+  <button class="nav-btn concierge-btn" onclick="show('concierge',this)">🔑 Concierge</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     JUKEBOX
+══════════════════════════════════════════════════════ -->
+<div class="section active" id="sec-jukebox">
+  <div class="juke-header">
+    <div class="juke-title">🎵 Jukebox</div>
+    <div class="juke-sub">Your personal playlist · Up to 10 tracks · Saved to profile</div>
+  </div>
+
+  <!-- Player Bar -->
+  <div class="player-bar" id="player-bar">
+    <div class="wave-bars" id="wave-bars" style="display:none;">
+      <div class="wave-bar" style="animation:wave1 0.5s ease-in-out infinite alternate;"></div>
+      <div class="wave-bar" style="animation:wave2 0.4s ease-in-out infinite alternate;"></div>
+      <div class="wave-bar" style="animation:wave1 0.6s ease-in-out infinite alternate;"></div>
+      <div class="wave-bar" style="animation:wave2 0.35s ease-in-out infinite alternate;"></div>
+      <div class="wave-bar" style="animation:wave1 0.55s ease-in-out infinite alternate;"></div>
+    </div>
+    <div class="player-info">
+      <div class="player-title" id="player-title">No track selected</div>
+      <div class="player-artist" id="player-artist">Select a song below to play</div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" onclick="prevSong()" title="Previous">⏮</button>
+      <button class="ctrl-btn play-main" id="play-pause-btn" onclick="togglePlay()">▶</button>
+      <button class="ctrl-btn" onclick="nextSong()" title="Next">⏭</button>
+      <button class="ctrl-btn" id="shuffle-btn" onclick="toggleShuffle()" title="Shuffle">⇄</button>
+      <button class="ctrl-btn" id="repeat-btn" onclick="toggleRepeat()" title="Repeat">↻</button>
+    </div>
+    <div class="progress-wrap">
+      <span class="time-label" id="time-current">0:00</span>
+      <div class="progress-bar" onclick="seekTo(event)">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <span class="time-label" id="time-total">0:00</span>
+    </div>
+    <div class="volume-wrap">
+      <span class="vol-icon">🔊</span>
+      <div class="vol-slider" id="vol-slider" onclick="setVolume(event)">
+        <div style="height:100%;width:80%;background:#facc15;border-radius:2px;" id="vol-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="juke-tabs">
+    <button class="juke-tab active" onclick="switchTab('playlist',this)">My Playlist</button>
+    <button class="juke-tab" onclick="switchTab('queue',this)">Queue</button>
+    <button class="juke-tab" onclick="switchTab('add',this)">+ Add Song</button>
+  </div>
+
+  <!-- Playlist Tab -->
+  <div id="tab-playlist">
+    <div class="song-list" id="song-list"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+      <span style="font-family:'Rajdhani',sans-serif;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);" id="track-count">0 / 10 tracks</span>
+      <button class="btn-gold" onclick="saveJukebox()">Save to Profile ✓</button>
+    </div>
+  </div>
+
+  <!-- Queue Tab -->
+  <div id="tab-queue" style="display:none;">
+    <div class="queue-panel">
+      <div class="queue-title">Up Next</div>
+      <div id="queue-list"></div>
+    </div>
+  </div>
+
+  <!-- Add Song Tab -->
+  <div id="tab-add" style="display:none;">
+    <div class="add-form">
+      <div class="add-form-title">Add a Song</div>
+      <div class="form-row">
+        <div>
+          <label class="form-label">Song Title *</label>
+          <input class="form-input" placeholder="e.g. Money Trees" id="new-title">
+        </div>
+        <div>
+          <label class="form-label">Artist</label>
+          <input class="form-input" placeholder="e.g. Kendrick Lamar" id="new-artist">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Spotify / YouTube / SoundCloud URI (optional)</label>
+        <input class="form-input" placeholder="spotify:track:... or https://youtube.com/..." id="new-uri" style="width:100%;margin-bottom:0;">
+      </div>
+      <div class="form-btns">
+        <button class="btn-gold" onclick="addSong()">+ Add to Playlist</button>
+        <button class="btn-ghost" onclick="clearAddForm()">Clear</button>
+      </div>
+    </div>
+    <div style="font-family:'Lato',sans-serif;font-size:0.75rem;color:rgba(255,255,255,0.25);line-height:1.6;">
+      Tip: Paste a Spotify track URI or YouTube link to enable direct playback when connected. Without a URI, the song is saved as a title reference only.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     CONCIERGE
+══════════════════════════════════════════════════════ -->
+<div class="section" id="sec-concierge">
+
+  <!-- Hero -->
+  <div class="conc-hero">
+    <div class="conc-badge">🔑 Create AI Profit · Concierge Division</div>
+    <div class="conc-title">Become a CAP Host</div>
+    <div class="conc-sub">We're expanding to major cities. If you own or manage short-term rental properties, we want you on the team. Earn commissions, get featured in the 1% Playground, and grow your portfolio with us.</div>
+    <div class="conc-cta-row">
+      <button class="btn-gold-solid" onclick="scrollToApply()">Apply to Host →</button>
+      <button class="btn-ghost" onclick="openTerms()">View Terms</button>
+    </div>
+  </div>
+
+  <!-- Earnings Preview -->
+  <div class="city-section">
+    <div class="section-label">What Hosts Earn</div>
+    <div class="earnings-grid">
+      <div class="earn-card">
+        <div class="earn-amount">$2,400</div>
+        <div class="earn-label">Avg / Month<br>Single Unit</div>
+      </div>
+      <div class="earn-card">
+        <div class="earn-amount">15%</div>
+        <div class="earn-label">CAP Commission<br>Per Booking</div>
+      </div>
+      <div class="earn-card">
+        <div class="earn-amount">$500</div>
+        <div class="earn-label">Signup Bonus<br>First Booking</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- City Targeting -->
+  <div class="city-section">
+    <div class="section-label">Cities We're Targeting — Select Your City</div>
+    <div class="city-grid" id="city-grid"></div>
+  </div>
+
+  <!-- Host Application Form -->
+  <div class="host-form" id="apply-section">
+    <div class="host-form-title">Host Application</div>
+    <div class="host-form-sub">Fill out the form below. Our concierge team will reach out within 24 hours. We're actively recruiting hosts in all listed cities — don't wait.</div>
+    <div class="form-grid">
+      <div>
+        <label class="form-label">Full Name *</label>
+        <input class="form-input" placeholder="Your full name" id="host-name">
+      </div>
+      <div>
+        <label class="form-label">Email *</label>
+        <input class="form-input" type="email" placeholder="your@email.com" id="host-email">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div>
+        <label class="form-label">Phone</label>
+        <input class="form-input" type="tel" placeholder="+1 (000) 000-0000" id="host-phone">
+      </div>
+      <div>
+        <label class="form-label">City</label>
+        <select class="form-select" id="host-city">
+          <option value="">— Select city —</option>
+          <option>Atlanta, GA</option>
+          <option>Miami, FL</option>
+          <option>Las Vegas, NV</option>
+          <option>New York, NY</option>
+          <option>Los Angeles, CA</option>
+          <option>Houston, TX</option>
+          <option>Dallas, TX</option>
+          <option>Chicago, IL</option>
+          <option>Nashville, TN</option>
+          <option>Charlotte, NC</option>
+          <option>Phoenix, AZ</option>
+          <option>Orlando, FL</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div>
+        <label class="form-label">Number of Units</label>
+        <select class="form-select" id="host-units">
+          <option>1 unit</option>
+          <option>2–5 units</option>
+          <option>6–10 units</option>
+          <option>10+ units</option>
+          <option>I don't own yet — interested in arbitrage</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Platform Currently Using</label>
+        <select class="form-select">
+          <option>Airbnb</option>
+          <option>VRBO</option>
+          <option>Both</option>
+          <option>None yet</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label class="form-label">Tell us about your property / situation</label>
+      <textarea class="form-textarea" placeholder="Brief description — location, type of unit, current occupancy rate, goals..."></textarea>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.2rem;">
+      <input type="checkbox" id="terms-agree" style="accent-color:#facc15;">
+      <label for="terms-agree" style="font-family:'Lato',sans-serif;font-size:0.75rem;color:rgba(255,255,255,0.4);cursor:pointer;">
+        I agree to the <span style="color:rgba(200,160,60,0.8);cursor:pointer;" onclick="openTerms()">CAP Concierge Host Terms & Conditions</span>
+      </label>
+    </div>
+    <button class="btn-gold-solid" onclick="submitApplication()" style="padding:13px 32px;">Submit Application →</button>
+  </div>
+
+  <!-- Terms of Service -->
+  <div class="terms-section" id="terms-section">
+    <div class="section-label">Concierge Host Terms & Conditions</div>
+
+    <div class="terms-item">
+      <div class="terms-header" onclick="toggleTerm(0)">
+        <span class="terms-num">01</span>
+        <span class="terms-title">Host Agreement & Commission Structure</span>
+        <span class="terms-arrow" id="arrow-0">▾</span>
+      </div>
+      <div class="terms-body" id="term-0">
+        By applying as a CAP Concierge Host, you agree to list your property exclusively through the Create AI Profit concierge booking system for the duration of your agreement. CAP retains a 15% commission on all bookings processed through the platform. Hosts receive 85% of net booking revenue, paid weekly to their in-app wallet. The $500 signup bonus is issued upon completion of your first confirmed booking and is non-transferable.
+      </div>
+    </div>
+
+    <div class="terms-item">
+      <div class="terms-header" onclick="toggleTerm(1)">
+        <span class="terms-num">02</span>
+        <span class="terms-title">Property Standards & Compliance</span>
+        <span class="terms-arrow" id="arrow-1">▾</span>
+      </div>
+      <div class="terms-body" id="term-1">
+        All properties listed under CAP Concierge must meet minimum hospitality standards: clean, photo-verified, and compliant with local short-term rental regulations. CAP reserves the right to inspect listings, request updated photos, or remove non-compliant properties at any time without notice. Hosts are solely responsible for obtaining all required local permits, licenses, and insurance. CAP is not liable for any regulatory fines, guest incidents, or property damage.
+      </div>
+    </div>
+
+    <div class="terms-item">
+      <div class="terms-header" onclick="toggleTerm(2)">
+        <span class="terms-num">03</span>
+        <span class="terms-title">Guest Relations & Conduct</span>
+        <span class="terms-arrow" id="arrow-2">▾</span>
+      </div>
+      <div class="terms-body" id="term-2">
+        Hosts agree to maintain a minimum 4.5-star guest rating. Properties falling below this threshold for two consecutive months may be suspended from the platform. All guest communications must be conducted through the CAP concierge system. Direct solicitation of guests outside the platform is prohibited and will result in immediate termination and forfeiture of pending earnings. CAP members receive priority booking access as part of their 1% Playground membership.
+      </div>
+    </div>
+
+    <div class="terms-item">
+      <div class="terms-header" onclick="toggleTerm(3)">
+        <span class="terms-num">04</span>
+        <span class="terms-title">Revenue, Payments & Wallet</span>
+        <span class="terms-arrow" id="arrow-3">▾</span>
+      </div>
+      <div class="terms-body" id="term-3">
+        All host earnings are deposited into the CAP in-app wallet within 48 hours of guest checkout confirmation. Hosts may request advanced access of up to 50% of their pending balance at any time — interest-free, auto-repaid from future deposits. CreateAIProfit.com retains ownership of all wallet infrastructure. Withdrawals to external bank accounts are processed weekly on Fridays. A 2.5% processing fee applies to all external transfers. Tax compliance is the sole responsibility of the host.
+      </div>
+    </div>
+
+    <div class="terms-item">
+      <div class="terms-header" onclick="toggleTerm(4)">
+        <span class="terms-num">05</span>
+        <span class="terms-title">Arbitrage Program</span>
+        <span class="terms-arrow" id="arrow-4">▾</span>
+      </div>
+      <div class="terms-body" id="term-4">
+        CAP offers a sublease arbitrage program for hosts who do not own property. Under this program, CAP assists in identifying and negotiating master lease agreements with property owners. Participants in the arbitrage program agree to a 20% revenue share with CAP (vs. 15% for property owners). CAP provides training, templates, and ongoing support. Participants are responsible for all lease obligations, utilities, and furnishing costs. CAP does not guarantee income or occupancy rates.
+      </div>
+    </div>
+
+    <div class="terms-item">
+      <div class="terms-header" onclick="toggleTerm(5)">
+        <span class="terms-num">06</span>
+        <span class="terms-title">Termination & Dispute Resolution</span>
+        <span class="terms-arrow" id="arrow-5">▾</span>
+      </div>
+      <div class="terms-body" id="term-5">
+        Either party may terminate this agreement with 30 days written notice. Immediate termination without notice applies in cases of fraud, platform abuse, or violation of guest conduct policies. All disputes are subject to mandatory arbitration in Nevada, USA, under AAA rules. No class actions. No jury trials. CreateAIProfit.com owns all rights to all content, listings, and data generated through the platform. These terms are governed by Nevada state law.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+@keyframes wave1 { from{height:5px} to{height:16px} }
+@keyframes wave2 { from{height:9px} to{height:20px} }
+</style>
+
+<script>
+// ── NAV ──
+function show(page, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + page).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── TOAST ──
+function toast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = color || 'rgba(250,204,21,0.4)';
+  t.style.color = color ? '#f87171' : '#facc15';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════
+// JUKEBOX
+// ══════════════════════════════════════
+let songs = [
+  { title:'Money Trees', artist:'Kendrick Lamar', uri:'', dur:'5:03' },
+  { title:'Power', artist:'Kanye West', uri:'', dur:'4:52' },
+  { title:'Hustlin\'', artist:'Rick Ross', uri:'', dur:'4:37' },
+  { title:'Started From the Bottom', artist:'Drake', uri:'', dur:'3:15' },
+  { title:'All I Do Is Win', artist:'DJ Khaled ft. T-Pain', uri:'', dur:'3:48' },
+  { title:'HUMBLE.', artist:'Kendrick Lamar', uri:'', dur:'2:57' },
+  { title:'God\'s Plan', artist:'Drake', uri:'', dur:'3:18' },
+];
+
+let currentIdx = -1;
+let isPlaying = false;
+let isShuffle = false;
+let isRepeat = false;
+let progressInterval = null;
+let progressPct = 0;
+
+function renderSongs() {
+  document.getElementById('track-count').textContent = `${songs.length} / 10 tracks`;
+  document.getElementById('song-list').innerHTML = songs.map((s,i) => `
+    <div class="song-row ${currentIdx===i?'playing':''}" onclick="selectSong(${i})">
+      <div class="song-num ${currentIdx===i?'playing-icon':''}">
+        ${currentIdx===i && isPlaying ? '♪' : (i+1)}
+      </div>
+      <div class="song-info">
+        <div class="song-title ${currentIdx===i?'playing':''}">${s.title}</div>
+        <div class="song-artist">${s.artist}</div>
+      </div>
+      <div class="song-dur">${s.dur}</div>
+      <div class="song-actions">
+        <button class="song-action-btn" onclick="event.stopPropagation();moveUp(${i})" title="Move up">↑</button>
+        <button class="song-action-btn del" onclick="event.stopPropagation();removeSong(${i})" title="Remove">✕</button>
+      </div>
+    </div>
+  `).join('');
+
+  // Queue
+  const queueSongs = songs.slice(currentIdx + 1);
+  document.getElementById('queue-list').innerHTML = queueSongs.length
+    ? queueSongs.map((s,i) => `
+      <div class="queue-item">
+        <div class="queue-pos">${i+1}</div>
+        <div class="queue-name">${s.title} — ${s.artist}</div>
+        <button class="queue-up" onclick="playIdx(${currentIdx+1+i})">▶</button>
+      </div>
+    `).join('')
+    : '<div style="font-family:\'Lato\',sans-serif;font-size:0.75rem;color:rgba(255,255,255,0.2);padding:8px 0;">Queue is empty</div>';
+}
+
+function selectSong(idx) {
+  if (currentIdx === idx && isPlaying) {
+    pausePlayback();
+  } else {
+    playIdx(idx);
+  }
+}
+
+function playIdx(idx) {
+  currentIdx = idx;
+  isPlaying = true;
+  const s = songs[idx];
+  document.getElementById('player-title').textContent = s.title;
+  document.getElementById('player-artist').textContent = s.artist;
+  document.getElementById('play-pause-btn').textContent = '⏸';
+  document.getElementById('wave-bars').style.display = 'flex';
+  startProgress(s.dur);
+  renderSongs();
+  toast(`▶ ${s.title} — ${s.artist}`);
+  if (s.uri && s.uri.startsWith('http')) window.open(s.uri, '_blank');
+}
+
+function pausePlayback() {
+  isPlaying = false;
+  document.getElementById('play-pause-btn').textContent = '▶';
+  document.getElementById('wave-bars').style.display = 'none';
+  clearInterval(progressInterval);
+  renderSongs();
+}
+
+function togglePlay() {
+  if (currentIdx < 0) { if (songs.length) playIdx(0); return; }
+  isPlaying ? pausePlayback() : playIdx(currentIdx);
+}
+
+function prevSong() {
+  if (currentIdx <= 0) return;
+  playIdx(currentIdx - 1);
+}
+
+function nextSong() {
+  if (isShuffle) {
+    let next = Math.floor(Math.random() * songs.length);
+    while (next === currentIdx && songs.length > 1) next = Math.floor(Math.random() * songs.length);
+    playIdx(next);
+  } else if (currentIdx < songs.length - 1) {
+    playIdx(currentIdx + 1);
+  } else if (isRepeat) {
+    playIdx(0);
+  }
+}
+
+function toggleShuffle() {
+  isShuffle = !isShuffle;
+  document.getElementById('shuffle-btn').style.color = isShuffle ? '#facc15' : 'rgba(255,255,255,0.4)';
+  toast(isShuffle ? 'Shuffle on' : 'Shuffle off');
+}
+
+function toggleRepeat() {
+  isRepeat = !isRepeat;
+  document.getElementById('repeat-btn').style.color = isRepeat ? '#facc15' : 'rgba(255,255,255,0.4)';
+  toast(isRepeat ? 'Repeat on' : 'Repeat off');
+}
+
+function startProgress(durStr) {
+  clearInterval(progressInterval);
+  progressPct = 0;
+  const parts = durStr.split(':');
+  const totalSec = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  let elapsed = 0;
+  document.getElementById('time-total').textContent = durStr;
+  progressInterval = setInterval(() => {
+    elapsed++;
+    progressPct = (elapsed / totalSec) * 100;
+    document.getElementById('progress-fill').style.width = progressPct + '%';
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    document.getElementById('time-current').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    if (elapsed >= totalSec) { clearInterval(progressInterval); nextSong(); }
+  }, 1000);
+}
+
+function seekTo(e) {
+  const bar = e.currentTarget;
+  const pct = e.offsetX / bar.offsetWidth;
+  document.getElementById('progress-fill').style.width = (pct * 100) + '%';
+}
+
+function setVolume(e) {
+  const bar = e.currentTarget;
+  const pct = Math.max(0, Math.min(1, e.offsetX / bar.offsetWidth));
+  document.getElementById('vol-fill').style.width = (pct * 100) + '%';
+}
+
+function addSong() {
+  const title = document.getElementById('new-title').value.trim();
+  const artist = document.getElementById('new-artist').value.trim();
+  const uri = document.getElementById('new-uri').value.trim();
+  if (!title) { toast('Enter a song title', 'rgba(248,113,113,0.4)'); return; }
+  if (songs.length >= 10) { toast('Max 10 songs reached', 'rgba(248,113,113,0.4)'); return; }
+  songs.push({ title, artist: artist || 'Unknown Artist', uri, dur: '—' });
+  clearAddForm();
+  renderSongs();
+  toast(`"${title}" added ✓`);
+}
+
+function clearAddForm() {
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-artist').value = '';
+  document.getElementById('new-uri').value = '';
+}
+
+function removeSong(idx) {
+  const name = songs[idx].title;
+  if (currentIdx === idx) { pausePlayback(); currentIdx = -1; }
+  else if (currentIdx > idx) currentIdx--;
+  songs.splice(idx, 1);
+  renderSongs();
+  toast(`"${name}" removed`);
+}
+
+function moveUp(idx) {
+  if (idx === 0) return;
+  [songs[idx-1], songs[idx]] = [songs[idx], songs[idx-1]];
+  if (currentIdx === idx) currentIdx--;
+  else if (currentIdx === idx-1) currentIdx++;
+  renderSongs();
+}
+
+function saveJukebox() {
+  toast('Jukebox saved to your profile ✓');
+}
+
+function switchTab(tab, btn) {
+  ['playlist','queue','add'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = 'none';
+  });
+  document.querySelectorAll('.juke-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).style.display = 'block';
+  btn.classList.add('active');
+}
+
+// ══════════════════════════════════════
+// CONCIERGE
+// ══════════════════════════════════════
+const cities = [
+  { name:'Atlanta, GA', status:'🔥 High Demand', cls:'hot' },
+  { name:'Miami, FL', status:'🔥 High Demand', cls:'hot' },
+  { name:'Las Vegas, NV', status:'✓ Open', cls:'open' },
+  { name:'New York, NY', status:'🔥 High Demand', cls:'hot' },
+  { name:'Los Angeles, CA', status:'✓ Open', cls:'open' },
+  { name:'Houston, TX', status:'✓ Open', cls:'open' },
+  { name:'Dallas, TX', status:'✓ Open', cls:'open' },
+  { name:'Chicago, IL', status:'✓ Open', cls:'open' },
+  { name:'Nashville, TN', status:'🔥 High Demand', cls:'hot' },
+  { name:'Charlotte, NC', status:'✓ Open', cls:'open' },
+  { name:'Phoenix, AZ', status:'✓ Open', cls:'open' },
+  { name:'Orlando, FL', status:'🔥 High Demand', cls:'hot' },
+];
+
+function renderCities() {
+  document.getElementById('city-grid').innerHTML = cities.map((c,i) => `
+    <div class="city-card" id="city-${i}" onclick="selectCity(${i})">
+      <div class="city-name">${c.name}</div>
+      <div class="city-status ${c.cls}">${c.status}</div>
+    </div>
+  `).join('');
+}
+
+function selectCity(idx) {
+  document.querySelectorAll('.city-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('city-' + idx).classList.add('selected');
+  document.getElementById('host-city').value = cities[idx].name;
+  toast(`${cities[idx].name} selected`);
+}
+
+function scrollToApply() {
+  document.getElementById('apply-section').scrollIntoView({ behavior:'smooth' });
+}
+
+function openTerms() {
+  document.getElementById('terms-section').scrollIntoView({ behavior:'smooth' });
+}
+
+function submitApplication() {
+  const name = document.getElementById('host-name').value.trim();
+  const email = document.getElementById('host-email').value.trim();
+  const agreed = document.getElementById('terms-agree').checked;
+  if (!name || !email) { toast('Name and email required', 'rgba(248,113,113,0.4)'); return; }
+  if (!agreed) { toast('Please agree to the terms', 'rgba(248,113,113,0.4)'); return; }
+  toast(`Application submitted — we'll reach out within 24h ✓`);
+}
+
+function toggleTerm(idx) {
+  const body = document.getElementById('term-' + idx);
+  const arrow = document.getElementById('arrow-' + idx);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+// ── INIT ──
+renderSongs();
+renderCities();
+</script>
+</body>
+</html>
