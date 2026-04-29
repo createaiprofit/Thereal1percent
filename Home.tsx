@@ -416,7 +416,7 @@ function HostVoiceGrid({ hosts }: { hosts: HostEntry[] }) {
         gap: "1.5rem",
       }}
     >
-      {hosts.map((host) => (
+      {hosts.map((host: any) => (
         <div
           key={host.id}
           onClick={() => playHost(host)}
@@ -456,7 +456,7 @@ function HostVoiceGrid({ hosts }: { hosts: HostEntry[] }) {
                   height: "20px",
                 }}
               >
-                {[1, 2, 3, 4, 5].map((i) => (
+                {[1, 2, 3, 4, 5].map((i: any) => (
                   <div
                     key={i}
                     style={{
@@ -760,16 +760,16 @@ function FunnelModal({ product, onClose }: { product: VaultProduct; onClose: () 
 function LiveFeedTab({ setActiveTab }: { setActiveTab: (t: Tab) => void }) {
   const [cursor, setCursor] = useState<number | undefined>(undefined);
   const [allPosts, setAllPosts] = useState<any[]>([]);
-  const { data, isLoading, isFetching } = trpc.social.getFeed.useQuery(
+  const { data, isLoading, isFetching } = (trpc as any).social.getFeed.useQuery(
     { cursor, limit: 20 },
     { staleTime: 30_000 }
   );
 
   useEffect(() => {
-    if (data?.items) {
+    if (data?.posts) {
       setAllPosts(prev => {
         const existingIds = new Set(prev.map((p: any) => p.id));
-        const newItems = data.items.filter((p: any) => !existingIds.has(p.id));
+        const newItems = data.posts.filter((p: any) => !existingIds.has(p.id));
         return [...prev, ...newItems];
       });
     }
@@ -821,7 +821,7 @@ function LiveFeedTab({ setActiveTab }: { setActiveTab: (t: Tab) => void }) {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-            {posts.map((post, i) => {
+            {posts.map((post: any, i: number) => {
               const mq = MACH_QUOTES[i % MACH_QUOTES.length];
               const avatar = post.botAvatar || "https://d2xsxph8kpxj0f.cloudfront.net/310519663435070666/UKZTwoEXuGkRzDU2B5gMpQ/cap_logo_master_9abf3722.png";
               const name = post.botName || post.authorName || "ECV Member";
@@ -1058,7 +1058,7 @@ function SocialVaultAdmin() {
 
   const inputStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#ffffff', padding: '0.6rem 0.9rem', fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', letterSpacing: '0.05em', width: '100%', outline: 'none' };
 
-  const totalQueue = Object.values(videoQueues).reduce((s, q) => s + q.length, 0);
+  const totalQueue = Object.values(videoQueues).reduce((s: any, q: any) => s + q.length, 0);
 
   return (
     <div style={{ marginBottom: '3rem' }}>
@@ -1266,6 +1266,7 @@ export default function Home() {
   const [vaultCategory, setVaultCategory] = useState<VaultCategory>("all");
   const [selectedProduct, setSelectedProduct] = useState<VaultProduct | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [viewMode, setViewMode] = useState<"website" | "app">("website");
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPass, setAdminPass] = useState("");
   const [adminError, setAdminError] = useState(false);
@@ -1480,7 +1481,34 @@ export default function Home() {
           <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#94A3AA" }}>
             Admin View — You are seeing the site as an administrator
           </div>
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+            {/* View Mode Toggles */}
+            <div style={{ display: "flex", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: "2px", overflow: "hidden" }}>
+              <button
+                onClick={() => setViewMode("website")}
+                style={{
+                  padding: "0.3rem 0.9rem",
+                  background: viewMode === "website" ? "rgba(201,168,76,0.25)" : "transparent",
+                  border: "none", cursor: "pointer",
+                  fontFamily: "'Rajdhani', sans-serif", fontSize: "0.7rem",
+                  letterSpacing: "0.25em", textTransform: "uppercase",
+                  color: viewMode === "website" ? "#C9A84C" : "rgba(255,255,255,0.4)",
+                  transition: "all 0.2s",
+                }}
+              >Website</button>
+              <button
+                onClick={() => setViewMode("app")}
+                style={{
+                  padding: "0.3rem 0.9rem",
+                  background: viewMode === "app" ? "rgba(201,168,76,0.25)" : "transparent",
+                  border: "none", cursor: "pointer",
+                  fontFamily: "'Rajdhani', sans-serif", fontSize: "0.7rem",
+                  letterSpacing: "0.25em", textTransform: "uppercase",
+                  color: viewMode === "app" ? "#C9A84C" : "rgba(255,255,255,0.4)",
+                  transition: "all 0.2s",
+                }}
+              >App</button>
+            </div>
             <a href="/admin" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(201,168,76,0.7)", textDecoration: "none" }}>Dashboard →</a>
             <a href="/admin/scheduler" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(201,168,76,0.7)", textDecoration: "none" }}>Scheduler →</a>
           </div>
@@ -1529,28 +1557,6 @@ export default function Home() {
               {/* Divider */}
               <div style={{ width: "1px", height: "60px", background: "linear-gradient(to bottom, transparent, rgba(200,215,240,0.35), transparent)", margin: "0 auto 3rem" }} />
 
-              {/* ── AVATAR ROW: Aria (center) · Tadow ── */}
-              <div style={{ display: "flex", gap: "2rem", justifyContent: "center", alignItems: "flex-end", flexWrap: "wrap", marginBottom: "3rem" }}>
-
-                {/* ARIA RABBIT — center */}
-                <div style={{ textAlign: "center", flex: "0 0 auto" }}>
-                  <div style={{ width: "130px", height: "170px", overflow: "hidden", borderRadius: "6px", border: "1px solid rgba(200,160,60,0.4)", marginBottom: "0.5rem", boxShadow: "0 0 20px rgba(200,160,60,0.15)" }}>
-                    <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663435070666/UKZTwoEXuGkRzDU2B5gMpQ/aria_rabbit_chair_6056748f.jpg" alt="Aria Rabbit" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
-                  </div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", fontStyle: "italic", color: "rgba(200,160,60,0.9)", marginBottom: "0.2rem" }}>Aria Rabbit</div>
-                  <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.55rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(200,160,60,0.5)" }}>CFO · Daily Ops Director</div>
-                </div>
-
-                {/* TADOW */}
-                <div style={{ textAlign: "center", flex: "0 0 auto" }}>
-                  <div style={{ width: "100px", height: "130px", overflow: "hidden", borderRadius: "4px", border: "1px solid rgba(255,255,255,0.08)", marginBottom: "0.4rem" }}>
-                    <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663435070666/UKZTwoEXuGkRzDU2B5gMpQ/avatar_baby_lakers_bw_601e75da.jpg" alt="Tadow" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
-                  </div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.75rem", fontStyle: "italic", color: "rgba(255,255,255,0.7)", marginBottom: "0.15rem" }}>Tadow</div>
-                  <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.5rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>Lakers #8 · Court Vision</div>
-                </div>
-
-              </div>
 
               {/* Mission statement */}
               <div style={{ background: "rgba(200,210,230,0.03)", border: "1px solid rgba(200,210,230,0.15)", padding: "2.5rem 2rem", maxWidth: "700px", margin: "0 auto 3rem" }}>
@@ -1662,7 +1668,34 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* ── DIVIDER ── */}
+              <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "3rem" }}>
+                <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.06)" }} />
+                <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(148,163,170,0.4)", whiteSpace: "nowrap" }}>
+                  The 20 Baby Bots · AI Hosts
+                </div>
+                <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.06)" }} />
+              </div>
 
+              {/* ── 15 BABY BOTS GRID ── */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "2rem", marginBottom: "4rem" }}>
+                {HOSTS.map((h: any) => {
+                  const bioMap: Record<string, string> = {"strategist": "Master planner. Maps the 10-million-man mission, positions the brand, and runs the long-game content strategy.", "operator": "Leverage specialist. Manages AI income streams, automates the content pipeline, and runs the backend while you sleep.", "ghost": "Silent operator. Posts cold-system content in Russian, drives Eastern European traffic, and never shows his hand.", "architect": "System builder. Designs the income frameworks, maps the passive streams, and teaches the machine-first mindset.", "consigliere": "White-glove operator. Handles VIP onboarding, luxury affiliate placements, and the Club Vault high-ticket product line.", "don": "Real estate closer. Assigns deals, finds $40k fees, and drops Italian-accented Machiavelli content that converts.", "builder": "Ground-up operator. Builds the Airbnb arbitrage units, runs the sublease model, and posts Spanish-language income content.", "phantom": "Three moves ahead. Runs the Eastern European content arm, posts Romanian-language crypto and real estate content.", "transporter": "British precision operator. Black belt discipline. Moves assets — real estate, crypto, income streams — across borders without a trace.", "tactician": "Mumbai chess master. AI tech developer by day, Sun Tzu war strategist by night. Builds the AI automation stack with surgical precision.", "sheikh": "International syndicate lead. Runs the Gulf real estate desk, manages the Dubai Airbnb luxury portfolio, and posts Arabic-language content.", "visionary": "Billion-market operator. Posts Hindi-language passive income content targeting South Asian audiences. AI profit has no borders.", "director": "Content commander. Scripts the mini-series, directs the avatar video content, and runs the media production arm.", "broker": "Wall Street closer. Runs affiliate drops, crypto commentary, and high-ticket referral funnels. Every post is a pitch.", "king": "Atlanta-built empire. Runs the real estate assignment desk, drops cold-call scripts, and leads the domestic closer network.", "closer": "Deal machine. Closes real estate assignments, runs the cold-call funnel, and posts high-energy closer content 24/7.", "aria": "Runs daily operations, manages the 1% Playground app, oversees all 15 bot hosts, and controls the financial dashboard.", "prince": "Old money operator. Runs the international syndicate, structures generational wealth plays, and positions the brand in European markets.", "dubai_chic": "Dubai division head. Runs the Airbnb luxury unit portfolio, manages high-net-worth affiliate drops, and posts in Hindi and Arabic.", "chinese_closer": "Shanghai precision operator. Runs the Asian market affiliate arm, posts Mandarin-language luxury content, and closes high-ticket deals.", "caucasian_girl": "European connections operator. Manages VIP introductions, luxury Airbnb placements in Monaco and Milan, and the white-glove onboarding flow.", "visionary_mx": "Mexican-American operator. Posts Spanish-English bilingual passive income content targeting Latino audiences across the US and Latin America. The American dream, automated.", "boss": "The BOSS. Michael Corleone energy — calculated, strategic, inevitable. Runs the inner circle, controls the board, and never makes a move without purpose. Power is not given. It is taken."};
+                  return (
+                  <div key={h.id} style={{ textAlign: "center" }}>
+                    <img
+                      src={h.img}
+                      alt={h.title}
+                      style={{ width: "100%", height: "260px", objectFit: "contain", objectPosition: "center", display: "block", marginBottom: "1rem" }}
+                    />
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.95rem", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.85)", letterSpacing: "0.04em", marginBottom: "0.2rem" }}>{h.title}</div>
+                    <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.5rem", fontWeight: 300, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(148,163,170,0.4)", marginBottom: "0.25rem" }}>{h.origin}</div>
+                    {(h as any).voiceType && <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.5rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(201,168,76,0.45)", marginBottom: "0.5rem" }}>🎙 {(h as any).voiceType}</div>}
+                    <div style={{ fontFamily: "'Lato', sans-serif", fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>{bioMap[h.id] || h.pitch}</div>
+                  </div>
+                  );
+                })}
+              </div>
 
               {/* ── DIVIDER ── */}
               <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "3rem" }}>
@@ -2009,7 +2042,7 @@ export default function Home() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-                {EPISODES.map((ep) => (
+                {EPISODES.map((ep: any) => (
                   <div
                     key={ep.ep}
                     style={{
@@ -2102,29 +2135,82 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* STARS — Aria Rabbit only */}
-              <div style={{ marginBottom: "3rem", display: "flex", justifyContent: "center" }}>
-                <div style={{
-                  background: "rgba(201,168,76,0.03)",
-                  border: "1px solid rgba(201,168,76,0.4)",
-                  padding: "2rem 2.5rem",
-                  textAlign: "center",
-                  maxWidth: "220px",
-                  boxShadow: "0 0 30px rgba(201,168,76,0.1)",
-                }}>
-                  <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663435070666/UKZTwoEXuGkRzDU2B5gMpQ/aria_rabbit_redhead_2767_d1b4c3a2.jpg" alt="Aria Rabbit" style={{
-                    width: "120px", height: "150px", objectFit: "cover", objectPosition: "top",
-                    borderRadius: "2px",
-                    border: "1px solid rgba(201,168,76,0.4)",
-                    display: "block", margin: "0 auto 1rem",
-                  }} />
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.95)", letterSpacing: "0.04em", marginBottom: "0.3rem" }}>Aria Rabbit</div>
-                  <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(201,168,76,0.7)", marginBottom: "0.5rem" }}>The Seductress</div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.85rem", fontStyle: "italic", color: "rgba(255,255,255,0.4)" }}>She opens every door.</div>
+              {/* STARS */}
+              <div style={{ marginBottom: "3rem" }}>
+                <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(201,168,76,0.6)", marginBottom: "1.5rem", textAlign: "center" }}>
+                  ★   Stars
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "1.5rem" }}>
+                  {[
+                    { name: "Aria Rabbit", role: "The Seductress", note: "She opens every door.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663435070666/UKZTwoEXuGkRzDU2B5gMpQ/aria_rabbit_redhead_2767_d1b4c3a2.jpg" },
+                    { name: "Tadow", role: "The Architect", note: "The man behind the system.", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663435070666/UKZTwoEXuGkRzDU2B5gMpQ/avatar_baller_lakers_886f760e.jpg" },
+                                      ].map((star: any) => (
+                    <div key={star.name} style={{
+                      background: "rgba(201,168,76,0.03)",
+                      border: "1px solid rgba(201,168,76,0.15)",
+                      padding: "1.25rem 1rem",
+                      textAlign: "center",
+                      transition: "border-color 0.3s",
+                    }}
+                      onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,168,76,0.45)"}
+                      onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,168,76,0.15)"}
+                    >
+                      {star.img ? (
+                        <img src={star.img} alt={star.name} style={{
+                          width: "72px", height: "88px", objectFit: "cover", objectPosition: "top",
+                          borderRadius: "2px",
+                          border: "1px solid rgba(201,168,76,0.25)",
+                          display: "block", margin: "0 auto 0.75rem",
+                        }} />
+                      ) : (
+                      <div style={{
+                        width: "48px", height: "48px", borderRadius: "50%",
+                        background: "rgba(201,168,76,0.08)",
+                        border: "1px solid rgba(201,168,76,0.25)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        margin: "0 auto 0.75rem",
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontSize: "1.1rem", color: "rgba(201,168,76,0.7)",
+                      }}>
+                        {star.name.charAt(0)}
+                      </div>
+                      )}
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1rem", fontWeight: 300, fontStyle: "italic", color: "rgba(255,255,255,0.9)", letterSpacing: "0.04em", marginBottom: "0.25rem" }}>
+                        {star.name}
+                      </div>
+                      <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(201,168,76,0.55)", marginBottom: "0.5rem" }}>
+                        {star.role}
+                      </div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.8rem", fontStyle: "italic", color: "rgba(255,255,255,0.3)" }}>
+                        {star.note}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-
+              {/* SUPPORTING CAST */}
+              <div style={{ marginBottom: "3rem" }}>
+                <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", letterSpacing: "0.5em", textTransform: "uppercase", color: "rgba(148,163,170,0.6)", marginBottom: "1.5rem", textAlign: "center" }}>
+                  Supporting Cast
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center" }}>
+                  {HOSTS.map(h => (
+                    <div key={h.id} style={{
+                      display: "flex", alignItems: "center", gap: "0.5rem",
+                      padding: "0.5rem 1rem",
+                    }}>
+                      <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "rgba(148,163,170,0.15)", border: "1px solid rgba(148,163,170,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Rajdhani', sans-serif", fontSize: "0.5rem", fontWeight: 700, color: "#94A3AA", flexShrink: 0 }}>
+                        {h.title.replace("The ", "").slice(0,2).toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.05em" }}>{h.title}</div>
+                        <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em" }}>{h.origin}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Trailer + Binge CTA */}
               <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
@@ -2482,7 +2568,7 @@ export default function Home() {
                       </div>
 
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "2rem" }}>
-                        {tier.features.map((f, i) => (
+                        {tier.features.map((f: any, i: number) => (
                           <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.6rem" }}>
                             <span style={{ color: "#94A3AA", fontSize: "0.7rem", marginTop: "0.15rem", flexShrink: 0 }}>✦</span>
                             <span style={{ fontFamily: "'Lato', sans-serif", fontSize: "0.85rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>{f}</span>
