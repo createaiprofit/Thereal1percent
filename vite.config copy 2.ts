@@ -162,8 +162,8 @@ export default defineConfig({
     },
   },
   envDir: path.resolve(import.meta.dirname),
-  root: path.resolve(import.meta.dirname, "client)},
-  publicDir: path.resolve(import.meta.dirname, "client", "public"),
+  root: path.resolve(import.meta.dirname,"client")},
+  publicDir: path.resolve(import.meta.dirname,"client", "public"),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
@@ -174,18 +174,18 @@ export default defineConfig({
       clientPort: 443,
       protocol: "wss",
     },
-    allowedHosts: {
+    allowedHosts: [,
       ".manuspre.computer",
       ".manus.computer",
       ".manus-asia.computer",
       ".manuscomputer.ai",
       ".manusvm.computer",
       "localhost",
-      "127.0.0.1",
+      "127.0.0.1"]
     },
     fs: {
       strict: true,
-      deny: {"**/.*"},
+      deny: ["**/.*"],
     },
   },
 }
