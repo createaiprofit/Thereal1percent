@@ -174,7 +174,7 @@ export default defineConfig({
       ".manuspre.computer",
       ".manus.computer",
       ".manus-asia.computer",
-      ".manuscomputer.ai", by mi
+      ".manuscomputer.ai", 
       ".manusvm.computer",
       "localhost",
       "127.0.0.1",
