@@ -162,8 +162,8 @@ export default defineConfig({
     },
   },
   envDir: path.resolve(import.meta.dirname),
-  root: path.resolve(import.meta.dirname, "client"),
-  publicDir: path.resolve(import.meta.dirname, "client", "public"),
+  root: path.resolve(import.meta.dirname),
+  publicDir: path.resolve(import.meta.dirname,"public"),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
@@ -174,7 +174,7 @@ export default defineConfig({
       ".manuspre.computer",
       ".manus.computer",
       ".manus-asia.computer",
-      ".manuscomputer.ai",
+      ".manuscomputer.ai", by mi
       ".manusvm.computer",
       "localhost",
       "127.0.0.1",
