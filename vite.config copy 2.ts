@@ -174,7 +174,7 @@ export default defineConfig({
       clientPort: 443,
       protocol: "wss",
     },
-    allowedHosts: [
+    allowedHosts: {
       ".manuspre.computer",
       ".manus.computer",
       ".manus-asia.computer",
@@ -182,10 +182,10 @@ export default defineConfig({
       ".manusvm.computer",
       "localhost",
       "127.0.0.1",
-    ],
+    },
     fs: {
       strict: true,
-      deny: ["**/.*"],
+      deny: {"**/.*"},
     },
   },
-});
+}
